@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THEO DÕI THÔNG MINH - Hệ thống Y tế Thông minh</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/logo_app(1).png">
+    <link rel="shortcut icon" type="image/png" href="assets/logo_app(1).png">
+    <link rel="apple-touch-icon" href="assets/logo_app(1).png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+</head>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="screen">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="user-info">
+                    <div class="avatar">
+                        <img src="assets/logo_app(1).png" alt="User Avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <span class="material-icons" style="display:none;">person</span>
+                    </div>
+                    <div class="user-details">
+                        <h2>Xin chào, Người dùng</h2>
+                        <p>Hệ thống giám sát sức khỏe thông minh</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn">
+                        <span class="material-icons">notifications</span>
+                    </button>
+                    <button class="icon-btn">
+                        <span class="material-icons">settings</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-content">
+            <!-- Medical Monitor Device -->
+            <div class="medical-monitor">
+                <div class="monitor-header">
+                    <div class="monitor-title">
+                        <img src="assets/logo_app(1).png" alt="Medical Monitor Logo" class="monitor-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <span class="material-icons" style="display:none;">monitor_heart</span>
+                        <h2>CHỈ SỐ SINH TỒN</h2>
+                    </div>
+                    <div class="monitor-status">
+                        <div class="status-indicator active"></div>
+                        <span>Đang hoạt động</span>
+                    </div>
+                </div>
+                
+                <!-- Patient Information Section -->
+                <div class="patient-info-section">
+                    <div class="patient-info-title">
+                        <span class="material-icons">person</span>
+                        <h3>Thông tin bệnh nhân</h3>
+                    </div>
+                    <div class="patient-info-grid">
+                        <div class="patient-info-item">
+                            <label>Tên bệnh nhân:</label>
+                            <span id="monitor-patient-name">Chưa cập nhật</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <label>Giới tính:</label>
+                            <span id="monitor-patient-gender">Chưa cập nhật</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <label>Mã bệnh nhân:</label>
+                            <span id="monitor-patient-id">Chưa cập nhật</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <label>Số giường:</label>
+                            <span id="monitor-patient-bed">Chưa cập nhật</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <label>Phòng bệnh:</label>
+                            <span id="monitor-patient-room">Chưa cập nhật</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-time Charts Grid -->
+                <div class="charts-grid">
+                    <div class="chart-monitor">
+                        <div class="chart-header">
+                            <span class="material-icons">favorite</span>
+                            <h3>Nhịp tim</h3>
+                            <div class="current-value" id="current-heart-rate">108 bpm</div>
+                        </div>
+                        <canvas id="heart-rate-chart" width="300" height="150"></canvas>
+                    </div>
+                    
+                    <div class="chart-monitor">
+                        <div class="chart-header">
+                            <span class="material-icons">air</span>
+                            <h3>SpO2</h3>
+                            <div class="current-value" id="current-spo2">98%</div>
+                        </div>
+                        <canvas id="spo2-chart" width="300" height="150"></canvas>
+                    </div>
+                    
+                    <div class="chart-monitor">
+                        <div class="chart-header">
+                            <span class="material-icons">thermostat</span>
+                            <h3>Nhiệt độ °C</h3>
+                            <div class="current-value" id="current-temp-c">36.5°C</div>
+                            <button class="settings-btn" onclick="showTemperatureSettings()">
+                                <span class="material-icons">settings</span>
+                            </button>
+                        </div>
+                        <canvas id="temperature-c-chart" width="300" height="150"></canvas>
+                    </div>
+                    
+                    <div class="chart-monitor">
+                        <div class="chart-header">
+                            <span class="material-icons">device_thermostat</span>
+                            <h3>Nhiệt độ °F</h3>
+                            <div class="current-value" id="current-temp-f">97.7°F</div>
+                        </div>
+                        <canvas id="temperature-f-chart" width="300" height="150"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Additional Sensors -->
+                <div class="additional-sensors">
+                    <div class="sensor-item">
+                        <span class="material-icons">waves</span>
+                        <div>
+                            <p>Chuyển động</p>
+                            <strong id="motion-status">detected</strong>
+                        </div>
+                    </div>
+                    <div class="sensor-item">
+                        <span class="material-icons">sensors</span>
+                        <div>
+                            <p>Số lần cảm biến</p>
+                            <strong id="motion-count">5</strong>
+                        </div>
+                    </div>
+                    <div class="sensor-item">
+                        <span class="material-icons">thermostat_outdoor</span>
+                        <div>
+                            <p>Nhiệt độ môi trường</p>
+                            <strong id="ambient-temp">28.5°C</strong>
+                        </div>
+                    </div>
+                    <div class="sensor-item">
+                        <span class="material-icons">water_drop</span>
+                        <div>
+                            <p>Độ ẩm môi trường</p>
+                            <strong id="ambient-humidity">65%</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats Cards -->
+            <section class="quick-stats">
+                <div class="stat-card">
+                    <span class="material-icons">favorite</span>
+                    <h3>108</h3>
+                    <p>Nhịp tim (bpm)</p>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">air</span>
+                    <h3>98%</h3>
+                    <p>SpO2 (%)</p>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">thermostat</span>
+                    <h3>36.5°C</h3>
+                    <p>Nhiệt độ cơ thể (°C)</p>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">device_thermostat</span>
+                    <h3>97.7°F</h3>
+                    <p>Nhiệt độ cơ thể (°F)</p>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">waves</span>
+                    <h3>detected</h3>
+                    <p>Trạng thái chuyển động</p>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">sensors</span>
+                    <h3>5</h3>
+                    <p>Số lần cảm biến</p>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">thermostat_outdoor</span>
+                    <h3>28.5°C</h3>
+                    <p>Nhiệt độ môi trường (°C)</p>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">water_drop</span>
+                    <h3>65%</h3>
+                    <p>Độ ẩm môi trường (%)</p>
+                </div>
+            </section>
+
+            <section class="main-features">
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="showScreen('profile-screen')">
+                        <div class="feature-icon">
+                            <span class="material-icons">person</span>
+                        </div>
+                        <h3>Hồ sơ</h3>
+                        <p>Thông tin bệnh nhân</p>
+                    </div>
+                    <div class="feature-card" onclick="showScreen('environment-screen')">
+                        <div class="feature-icon">
+                            <span class="material-icons">eco</span>
+                        </div>
+                        <h3>Môi trường</h3>
+                        <p>Chất lượng không khí</p>
+                    </div>
+                    <div class="feature-card" onclick="showScreen('notification-screen')">
+                        <div class="feature-icon">
+                            <span class="material-icons">notifications</span>
+                        </div>
+                        <h3>Thông báo</h3>
+                        <p>Tin tức y tế</p>
+                    </div>
+                    <div class="feature-card primary" onclick="showScreen('chat-screen')">
+                        <div class="feature-icon">
+                            <span class="material-icons">chat</span>
+                        </div>
+                        <h3>Chat AI</h3>
+                        <p>Tư vấn y tế thông minh</p>
+                    </div>
+                    <div class="feature-card primary" onclick="showScreen('firstaid-screen')">
+                        <div class="feature-icon">
+                            <span class="material-icons">healing</span>
+                        </div>
+                        <h3>Sơ cứu</h3>
+                        <p>Hướng dẫn sơ cứu khẩn cấp</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="emergency-section">
+                <div class="emergency-card">
+                    <div class="emergency-content">
+                        <span class="material-icons emergency-icon">emergency</span>
+                        <div>
+                            <h3>Khẩn cấp</h3>
+                            <p>Gọi ngay 115 trong trường hợp khẩn cấp</p>
+                        </div>
+                    </div>
+                    <button class="emergency-btn">
+                        <span class="material-icons">call</span>
+                        115
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Profile Screen -->
+    <div id="profile-screen" class="screen">
+        <header class="screen-header">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <div class="header-title">
+                <img src="assets/logo_app(1).png" alt="App Logo" class="header-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <span class="material-icons" style="display:none;">person</span>
+                <h1>Hồ sơ cá nhân</h1>
+            </div>
+            <div class="header-actions"></div>
+        </header>
+        <main class="screen-content">
+            <div class="profile-container">
+                <!-- Ảnh đại diện -->
+                <div class="profile-avatar-section">
+                    <div class="avatar-large">
+                        <img src="assets/logo_app_11.jpg" alt="Avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <span class="material-icons" style="display:none;">person</span>
+                    </div>
+                    <button class="edit-avatar-btn" onclick="changeAvatar()">
+                        <span class="material-icons">camera_alt</span>
+                        Đổi ảnh
+                    </button>
+                </div>
+
+                <!-- Thông tin bệnh nhân -->
+                <div class="profile-section">
+                    <h3>📋 Thông tin bệnh nhân</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Mã số bệnh nhân</label>
+                            <input type="text" id="patient-id" placeholder="Nhập mã số bệnh nhân">
+                        </div>
+                        <div class="info-item">
+                            <label>Mã CCCD</label>
+                            <input type="text" id="cccd" placeholder="Nhập mã CCCD">
+                        </div>
+                        <div class="info-item">
+                            <label>Mã BHYT</label>
+                            <input type="text" id="bhyt" placeholder="Nhập mã BHYT">
+                        </div>
+                        <div class="info-item">
+                            <label>Họ và tên</label>
+                            <input type="text" id="full-name" placeholder="Nhập họ và tên">
+                        </div>
+                        <div class="info-item">
+                            <label>Ngày sinh</label>
+                            <input type="date" id="dob" placeholder="Chọn ngày sinh">
+                        </div>
+                        <div class="info-item">
+                            <label>Giới tính</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="gender" value="Nam" checked> Nam</label>
+                                <label><input type="radio" name="gender" value="Nữ"> Nữ</label>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <label>Quê quán</label>
+                            <input type="text" id="hometown" placeholder="Nhập quê quán">
+                        </div>
+                        <div class="info-item">
+                            <label>Số điện thoại</label>
+                            <input type="tel" id="phone" placeholder="Nhập số điện thoại">
+                        </div>
+                        <div class="info-item">
+                            <label>Người thân</label>
+                            <input type="text" id="relative" placeholder="Nhập tên người thân">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin thể chất -->
+                <div class="profile-section">
+                    <h3>📏 Thông tin thể chất</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Cân nặng (kg)</label>
+                            <input type="number" id="weight" placeholder="Nhập cân nặng">
+                        </div>
+                        <div class="info-item">
+                            <label>Chiều cao (cm)</label>
+                            <input type="number" id="height" placeholder="Nhập chiều cao">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin điều trị -->
+                <div class="profile-section">
+                    <h3>🏥 Thông tin điều trị</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Phòng</label>
+                            <input type="text" id="room" placeholder="Nhập số phòng">
+                        </div>
+                        <div class="info-item">
+                            <label>Giường</label>
+                            <input type="text" id="bed" placeholder="Nhập số giường">
+                        </div>
+                        <div class="info-item">
+                            <label>Ngày vào viện</label>
+                            <input type="date" id="admission-date" placeholder="Chọn ngày vào viện">
+                        </div>
+                        <div class="info-item">
+                            <label>Ngày ra viện</label>
+                            <input type="date" id="discharge-date" placeholder="Chọn ngày ra viện">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin y tế -->
+                <div class="profile-section">
+                    <h3>🩺 Thông tin y tế</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Nhóm máu</label>
+                            <select id="blood-type">
+                                <option value="">Chọn nhóm máu</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="info-item">
+                            <label>Dị ứng</label>
+                            <textarea id="allergies" placeholder="Nhập thông tin dị ứng"></textarea>
+                        </div>
+                        <div class="info-item">
+                            <label>Tiền sử bệnh</label>
+                            <textarea id="medical-history" placeholder="Nhập tiền sử bệnh"></textarea>
+                        </div>
+                        <div class="info-item">
+                            <label>Tái khám định kỳ</label>
+                            <textarea id="general-checkup" placeholder="Nhập thông tin tái khám định kỳ"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nhân viên y tế -->
+                <div class="profile-section">
+                    <h3>👨‍⚕️ Nhân viên y tế</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Bác sĩ điều trị</label>
+                            <input type="text" id="doctor" placeholder="Nhập tên bác sĩ">
+                        </div>
+                        <div class="info-item">
+                            <label>Diều dưỡng</label>
+                            <input type="text" id="nurses" placeholder="Nhập tên điều dưỡng">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút lưu -->
+                <div class="profile-actions">
+                    <button class="btn-primary" onclick="updateMonitorPatientInfo()">
+                        <span class="material-icons">save</span>
+                        Lưu thông tin
+                    </button>
+                    <button class="btn-secondary" onclick="showScreen('dashboard-screen')">
+                        <span class="material-icons">arrow_back</span>
+                        Quay lại
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- First Aid Screen -->
+    <div id="firstaid-screen" class="screen">
+        <header class="screen-header">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <h1>Sơ cứu</h1>
+        </header>
+        <main class="screen-content">
+            <div class="firstaid-container">
+                <div class="technique-card" onclick="toggleTechnique(this)">
+                    <div class="technique-header">
+                        <div class="technique-number">1</div>
+                        <img src="assets/logo_app_11.jpg" alt="CPR" class="technique-icon">
+                        <h3>Kỹ thuật hồi sức tim phổi (CPR)</h3>
+                        <span class="material-icons expand-icon">expand_more</span>
+                    </div>
+                    <div class="technique-content">
+                        <img src="assets/logo_app_11.jpg" alt="CPR" class="technique-image">
+                        <div class="technique-steps">
+                            <h4>Các bước thực hiện:</h4>
+                            <ol>
+                                <li>Kiểm tra sự tỉnh táo của nạn nhân</li>
+                                <li>Gọi cấp cứu 115 ngay lập tức</li>
+                                <li>Đặt nạn nhân nằm ngửa trên mặt phẳng</li>
+                                <li>Nghiêng đầu ra sau và nâng cằm</li>
+                                <li>Kiểm tra hơi thở trong 10 giây</li>
+                                <li>Nếu không thở, bắt đầu ép tim 30 lần</li>
+                                <li>Thổi ngạt 2 lần, mỗi lần 1 giây</li>
+                                <li>Lặp lại chu trình 30 ép tim - 2 thổi ngạt</li>
+                                <li>Tiếp tục cho đến khi có nhân viên y tế</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="technique-card" onclick="toggleTechnique(this)">
+                    <div class="technique-header">
+                        <div class="technique-number">2</div>
+                        <img src="assets/logo_app_12.jpg" alt="Hóc dị vật" class="technique-icon">
+                        <h3>Kỹ thuật sơ cứu hóc dị vật (Thủ thuật Heimlich)</h3>
+                        <span class="material-icons expand-icon">expand_more</span>
+                    </div>
+                    <div class="technique-content">
+                        <img src="assets/logo_app_12.jpg" alt="Hóc dị vật" class="technique-image">
+                        <div class="technique-steps">
+                            <h4>Các bước thực hiện:</h4>
+                            <ol>
+                                <li>Đứng sau nạn nhân, vòng tay ra trước</li>
+                                <li>Nắm một nắm đấm đặt vào vùng bụng trên rốn</li>
+                                <li>Nắm bàn tay kia ôm lấy nắm đấm</li>
+                                <li>Giật mạnh vào trong và lên trên</li>
+                                <li>Lặp lại 5 lần hoặc cho đến khi dị vật văng ra</li>
+                                <li>Nếu nạn nhân bất tỉnh, đặt nằm ngửa</li>
+                                <li>Dùng lòng bàn tay ấn vào vùng bụng trên rốn</li>
+                                <li>Lặp lại cho đến khi dị vật văng ra</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="technique-card" onclick="toggleTechnique(this)">
+                    <div class="technique-header">
+                        <div class="technique-number">3</div>
+                        <img src="assets/logo_app_13.jpg" alt="Xử lý vết thương" class="technique-icon">
+                        <h3>Kỹ thuật xử lý vết thương chảy máu</h3>
+                        <span class="material-icons expand-icon">expand_more</span>
+                    </div>
+                    <div class="technique-content">
+                        <img src="assets/logo_app_13.jpg" alt="Xử lý vết thương" class="technique-image">
+                        <div class="technique-steps">
+                            <h4>Các bước thực hiện:</h4>
+                            <ol>
+                                <li>Đeo găng tay y tế nếu có</li>
+                                <li>Rửa sạch tay với xà phòng diệt khuẩn</li>
+                                <li>Dùng gạc sạch ấn trực tiếp lên vết thương</li>
+                                <li>Giữ áp lực liên tục trong 5-10 phút</li>
+                                <li>Nếu máu thấm qua gạc, thêm gạc khác</li>
+                                <li>Không gỡ gạc cũ ra</li>
+                                <li>Nâng cao vùng bị thương cao hơn tim</li>
+                                <li>Băng ép vết thương</li>
+                                <li>Gọi cấp cứu nếu máu không ngừng chảy</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="technique-card" onclick="toggleTechnique(this)">
+                    <div class="technique-header">
+                        <div class="technique-number">4</div>
+                        <img src="assets/logo_app_14.jpg" alt="Sơ cứu bỏng" class="technique-icon">
+                        <h3>Kỹ thuật sơ cứu bỏng</h3>
+                        <span class="material-icons expand-icon">expand_more</span>
+                    </div>
+                    <div class="technique-content">
+                        <img src="assets/logo_app_14.jpg" alt="Sơ cứu bỏng" class="technique-image">
+                        <div class="technique-steps">
+                            <h4>Các bước thực hiện:</h4>
+                            <ol>
+                                <li>Ngay lập tức di chuyển nạn nhân ra khỏi nguồn nhiệt</li>
+                                <li>Tháo bỏ quần áo, trang sức vùng bị bỏng</li>
+                                <li>Làm mát vùng bỏng với nước mát (không phải nước đá)</li>
+                                <li>Thời gian làm mát: 15-20 phút</li>
+                                <li>Không dùng nước đá hoặc nước quá lạnh</li>
+                                <li>Không bôi kem đánh răng, bơ, hoặc các chất khác</li>
+                                <li>Che vùng bỏng bằng gạc sạch hoặc vải sạch</li>
+                                <li>Không dùng bông dính vào vết bỏng</li>
+                                <li>Gọi cấp cứu nếu bỏng nặng hoặc rộng</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="technique-card" onclick="toggleTechnique(this)">
+                    <div class="technique-header">
+                        <div class="technique-number">5</div>
+                        <img src="assets/logo_app_15.jpg" alt="Bong gân" class="technique-icon">
+                        <h3>Kỹ thuật xử lý bong gân và chấn thương phần mềm (Quy tắc R.I.C.E)</h3>
+                        <span class="material-icons expand-icon">expand_more</span>
+                    </div>
+                    <div class="technique-content">
+                        <img src="assets/logo_app_15.jpg" alt="Bong gân" class="technique-image">
+                        <div class="technique-steps">
+                            <h4>Quy tắc R.I.C.E:</h4>
+                            <div class="rice-section">
+                                <h5>R - Rest (Nghỉ ngơi):</h5>
+                                <ul>
+                                    <li>Ngay lập tức ngừng hoạt động gây chấn thương</li>
+                                    <li>Để vùng bị thương nghỉ ngơi hoàn toàn</li>
+                                </ul>
+                            </div>
+                            <div class="rice-section">
+                                <h5>I - Ice (Đá lạnh):</h5>
+                                <ul>
+                                    <li>Chườm đá lạnh trong 15-20 phút</li>
+                                    <li>Lặp lại mỗi 2-3 giờ trong 24-48 giờ đầu</li>
+                                    <li>Quấn đá bằng khăn để không gây bỏng lạnh</li>
+                                </ul>
+                            </div>
+                            <div class="rice-section">
+                                <h5>C - Compression (Ép):</h5>
+                                <ul>
+                                    <li>Dùng băng elastique quấn nhẹ nhàng</li>
+                                    <li>Quấn từ dưới lên trên</li>
+                                    <li>Không quấn quá chặt gây tê</li>
+                                </ul>
+                            </div>
+                            <div class="rice-section">
+                                <h5>E - Elevation (Nâng cao):</h5>
+                                <ul>
+                                    <li>Nâng cao vùng bị thương cao hơn tim</li>
+                                    <li>Dùng gối để nâng cao khi ngồi hoặc nằm</li>
+                                    <li>Giữ tư thế này càng nhiều càng tốt</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Chat Screen -->
+    <div id="chat-screen" class="screen">
+        <header class="screen-header">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <h1>Chat AI</h1>
+        </header>
+        <main class="chat-content">
+            <div class="chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message ai-message">
+                        <div class="message-avatar">
+                            <span class="material-icons">smart_toy</span>
+                        </div>
+                        <div class="message-content">
+                            <p>Xin chào! Tôi là hệ thống THEO DÕI THÔNG MINH. Tôi có thể giúp gì cho bạn về sức khỏe hôm nay?</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Tôi bị đau đầu')">🤕 Đau đầu</button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Tôi bị ho')">🗣️ Ho</button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Tôi bị sốt')">🌡️ Sốt</button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Tôi bị đau bụng')">🤢 Đau bụng</button>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="message-input" placeholder="Nhập câu hỏi của bạn..." onkeypress="handleKeyPress(event)">
+                        <button onclick="sendMessage()">
+                            <span class="material-icons">send</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Health Screen -->
+    <div id="health-screen" class="screen">
+        <header class="screen-header">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <h1>Sức khỏe</h1>
+        </header>
+        <main class="screen-content">
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>📈 Nhịp tim (bpm)</h3>
+                    <canvas id="heart-rate-chart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>🫁 SpO2 (%)</h3>
+                    <canvas id="spo2-chart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>🌡️ Nhiệt độ cơ thể (°C)</h3>
+                    <canvas id="temperature-c-chart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>🌡️ Nhiệt độ cơ thể (°F)</h3>
+                    <canvas id="temperature-f-chart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <div class="health-metrics">
+                    <div class="metric-card">
+                        <span class="material-icons">favorite</span>
+                        <div>
+                            <h4>108</h4>
+                            <p>Nhịp tim (bpm)</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="material-icons">thermostat</span>
+                        <div>
+                            <h4>36.5°C</h4>
+                            <p>Nhiệt độ (°C)</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="material-icons">water_drop</span>
+                        <div>
+                            <h4>65%</h4>
+                            <p>Độ ẩm (%)</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="material-icons">air</span>
+                        <div>
+                            <h4>98%</h4>
+                            <p>SpO2 (%)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Environment Screen -->
+    <div id="environment-screen" class="screen">
+        <header class="screen-header">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <h1>Môi trường</h1>
+        </header>
+        <main class="screen-content">
+            <div class="environment-data">
+                <div class="air-quality-card">
+                    <div class="air-quality-header">
+                        <span class="material-icons">air</span>
+                        <h3>Chất lượng không khí</h3>
+                    </div>
+                    <div class="aqi-value">
+                        <h2>42</h2>
+                        <p class="aqi-label good">Tốt</p>
+                    </div>
+                    <div class="air-quality-details">
+                        <div class="pollutant">
+                            <span>PM2.5</span>
+                            <strong>12 µg/m³</strong>
+                        </div>
+                        <div class="pollutant">
+                            <span>PM10</span>
+                            <strong>25 µg/m³</strong>
+                        </div>
+                        <div class="pollutant">
+                            <span>O₃</span>
+                            <strong>65 µg/m³</strong>
+                        </div>
+                        <div class="pollutant">
+                            <span>NO₂</span>
+                            <strong>18 µg/m³</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="weather-info">
+                    <div class="weather-card">
+                        <span class="material-icons">thermostat</span>
+                        <div>
+                            <h3>28°C</h3>
+                            <p>Nhiệt độ</p>
+                        </div>
+                    </div>
+                    <div class="weather-card">
+                        <span class="material-icons">water_drop</span>
+                        <div>
+                            <h3>65%</h3>
+                            <p>Độ ẩm</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Screen -->
+    <div id="notification-screen" class="screen">
+        <header class="screen-header">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <h1>Tin tức y tế</h1>
+        </header>
+        <main class="screen-content">
+            <div class="news-tabs">
+                <button class="tab-btn active" onclick="switchNewsTab(this, 'vnexpress')">📰 VnExpress</button>
+                <button class="tab-btn" onclick="switchNewsTab(this, 'thanhnien')">📰 Thanh Niên</button>
+                <button class="tab-btn" onclick="switchNewsTab(this, 'tuoitre')">📰 Tuổi Trẻ</button>
+            </div>
+            <div class="news-content">
+                <div class="news-placeholder">
+                    <div class="news-card">
+                        <h3>📰 Tin tức y tế mới nhất</h3>
+                        <p>Để xem tin tức y tế từ các nguồn uy tín, vui lòng truy cập trực tiếp:</p>
+                        <div class="news-links">
+                            <a href="https://vnexpress.net/suc-khoe" target="_blank">📰 VnExpress Sức khỏe</a>
+                            <a href="https://thanhnien.vn/suc-khoe" target="_blank">📰 Thanh Niên Sức khỏe</a>
+                            <a href="https://tuoitre.vn/suc-khoe" target="_blank">📰 Tuổi Trẻ Sức khỏe</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Temperature Settings Modal -->
+    <div id="temperature-settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚙️ Cài đặt ngưỡng nhiệt độ</h3>
+                <button class="close-btn" onclick="closeTemperatureSettings()">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="age-selector">
+                    <label for="age-select">Chọn độ tuổi:</label>
+                    <select id="age-select" onchange="updateTemperatureThresholds()">
+                        <option value="0-1">0-1 tuổi (Trẻ sơ sinh)</option>
+                        <option value="1-3">1-3 tuổi (Trẻ nhỏ)</option>
+                        <option value="3-5">3-5 tuổi (Mẫu giáo)</option>
+                        <option value="6-12">6-12 tuổi (Trẻ em)</option>
+                        <option value="13-18">13-18 tuổi (Thanh thiếu niên)</option>
+                        <option value="19-65" selected>19-65 tuổi (Người lớn)</option>
+                        <option value="65+">65+ tuổi (Người cao tuổi)</option>
+                    </select>
+                </div>
+                <div class="temperature-range">
+                    <h4>Ngưỡng nhiệt độ bình thường:</h4>
+                    <div class="range-display">
+                        <span class="min-temp" id="min-temp-display">36.1°C</span>
+                        <span class="to">đến</span>
+                        <span class="max-temp" id="max-temp-display">37.2°C</span>
+                    </div>
+                    <div class="range-info">
+                        <p id="range-description">Nhiệt độ bình thường cho người lớn</p>
+                    </div>
+                </div>
+                <div class="warning-settings">
+                    <label>
+                        <input type="checkbox" id="enable-temp-warning" checked>
+                        Bật cảnh báo khi nhiệt độ ngoài ngưỡng
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="saveTemperatureSettings()">Lưu cài đặt</button>
+                <button class="btn-secondary" onclick="closeTemperatureSettings()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
