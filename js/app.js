@@ -1617,12 +1617,32 @@ document.addEventListener('keydown', function(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         showScreen('chat-screen');
-        setTimeout(() => {
-            const messageInput = document.getElementById('message-input');
-            if (messageInput) {
-                messageInput.focus();
-            }
-        }, 300);
+    }
+    
+    // Emergency call function
+    function callEmergency() {
+        // In a real app, this would call 115
+        // For demo, show confirmation
+        if (confirm('Bạn có muốn gọi cấp cứu 115 ngay không?')) {
+            // Open phone dialer with 115
+            window.location.href = 'tel:115';
+            
+            // Show notification
+            showNotification('Đã gọi cấp cứu 115', 'success');
+            
+            // Log the action
+            console.log('Emergency call initiated at:', new Date().toISOString());
+        }
+    }
+    
+    // Show classification screen
+    function showClassificationScreen() {
+        showScreen('classification-screen');
+    }
+    
+    // Show emergency call screen
+    function showEmergencyCallScreen() {
+        showScreen('emergency-call-screen');
     }
 });
 
