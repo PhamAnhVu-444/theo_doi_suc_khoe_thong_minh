@@ -1725,22 +1725,51 @@ document.addEventListener('keydown', function(e) {
     };
     
     function evaluateAnswer(questionId, answerLevel) {
+        console.log('Evaluating answer:', { questionId, answerLevel });
+        
         // Store answer with level
         classificationAnswers[questionId] = answerLevel;
         
-        // Mark button as selected
-        const buttons = document.querySelectorAll(`.question-group:nth-child(${questionId}) .answer-btn`);
+        // Mark button as selected - Fixed selector
+        const questionGroup = document.querySelector(`.question-group:nth-child(${questionId})`);
+        if (!questionGroup) {
+            console.error('Question group not found:', questionId);
+            return;
+        }
+        
+        const buttons = questionGroup.querySelectorAll('.answer-btn');
+        console.log('Found buttons:', buttons.length);
+        
         buttons.forEach(btn => {
             btn.classList.remove('selected');
-            const btnLevel = parseInt(btn.getAttribute('onclick').match(/\d+/)[1]);
-            if (btnLevel === answerLevel) {
-                btn.classList.add('selected');
+            // Extract level from onclick attribute more safely
+            const onclickAttr = btn.getAttribute('onclick');
+            console.log('Button onclick:', onclickAttr);
+            
+            if (onclickAttr) {
+                const match = onclickAttr.match(/evaluateAnswer\(\s*\d+\s*,\s*(\d+)\s*\)/);
+                console.log('Match result:', match);
+                if (match) {
+                    const btnLevel = parseInt(match[1]);
+                    console.log('Button level:', btnLevel, 'Answer level:', answerLevel);
+                    if (btnLevel === answerLevel) {
+                        btn.classList.add('selected');
+                        console.log('Added selected class to button');
+                    }
+                }
             }
         });
         
+        // Check current answers
+        console.log('Current answers:', classificationAnswers);
+        console.log('Answers length:', Object.keys(classificationAnswers).length, 'Total questions:', totalQuestions);
+        
         // Check if all questions answered
         if (Object.keys(classificationAnswers).length === totalQuestions) {
+            console.log('All questions answered, calculating classification...');
             calculateClassification();
+        } else {
+            console.log('Not all questions answered yet');
         }
     }
     
