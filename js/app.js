@@ -1619,274 +1619,272 @@ document.addEventListener('keydown', function(e) {
         showScreen('chat-screen');
     }
     
-    // Emergency call function
-    function callEmergency() {
-        // In a real app, this would call 115
-        // For demo, show confirmation
-        if (confirm('Bạn có muốn gọi cấp cứu 115 ngay không?')) {
-            // Open phone dialer with 115
-            window.location.href = 'tel:115';
-            
-            // Show notification
-            showNotification('Đã gọi cấp cứu 115', 'success');
-            
-            // Log the action
-            console.log('Emergency call initiated at:', new Date().toISOString());
-        }
-    }
-    
     // Classification System - 5 Level Professional Medical Triage (Khoa Luan Style)
-    let selectedOptions = []; // Array to store selected {questionId, level, text}
-    
-    // Triage levels data from Khoa Luan
-    const TRIAGE_LEVELS = {
-        1: {
-            level: 1,
-            color: '#D32F2F',
-            title: 'Loại 1 – Cấp cứu tối khẩn',
-            timeDesc: 'Màu đỏ – xử trí ngay lập tức',
-            criteria: [
-                'Ngừng tim, ngừng thở.',
-                'Nguy cơ tắc nghẽn đường thở ngay lập tức (tắc, phù nề, dị vật…).',
-                'Suy hô hấp cấp, nhịp thở < 10 lần/phút hoặc thở ngáp.',
-                'Huyết áp < 80 mmHg (người lớn) hoặc sốc nặng ở trẻ.',
-                'Rối loạn tri giác sâu (GCS < 9).',
-                'Co giật liên tục/kéo dài > 5 phút.',
-                'Rối loạn hành vi gây nguy hiểm nghiêm trọng.'
-            ]
-        },
-        2: {
-            level: 2,
-            color: '#FF9800',
-            title: 'Loại 2 – Rất khẩn',
-            timeDesc: 'Màu cam – đánh giá & xử trí ≤ 10 phút',
-            criteria: [
-                'Nguy cơ tắc đường thở.',
-                'Suy hô hấp nặng, SpO₂ < 90%.',
-                'Sốc tuần hoàn: da lạnh, nổi bông, tưới máu kém; nhịp tim < 50 hoặc > 150 lần/phút; hạ huyết áp, mất máu cấp nặng.',
-                'Đau ngực nghi do tim.',
-                'Đau dữ dội bất kỳ nguyên nhân nào.',
-                'Đường huyết < 3 mmol/L.',
-                'Rối loạn tri giác (GCS < 13), liệt nửa người, mất ngôn ngữ cấp.',
-                'Sốt có dấu hiệu hôn mê.',
-                'Nghi nhiễm trùng huyết, viêm màng não mô cầu.',
-                'Đa chấn thương nặng hoặc khu trú nặng.',
-                'Ngộ độc nặng.',
-                'Thuyên tắc phổi, phình bóc tách ĐMC bụng.'
-            ]
-        },
-        3: {
-            level: 3,
-            color: '#FBC02D',
-            title: 'Loại 3 – Khẩn',
-            timeDesc: 'Màu vàng – đánh giá & xử trí ≤ 30 phút',
-            criteria: [
-                'Tăng huyết áp nghiêm trọng.',
-                'Mất máu nghiêm trọng.',
-                'Khó thở mức độ vừa, SpO₂ 90–95%.',
-                'Cơn co giật đã hồi phục ý thức.',
-                'Sốt ở bệnh nhân suy giảm miễn dịch.',
-                'Nôn ói kéo dài, mất nước.',
-                'Chấn thương đầu mất ý thức thoáng qua.',
-                'Đau ngực không do tim mức độ vừa.',
-                'Đau bụng có nguy cơ.',
-                'Tổn thương chi mức độ vừa (biến dạng, dập nát).',
-                'Hành vi nguy cơ tự làm tổn thương, loạn thần cấp.'
-            ]
-        },
-        4: {
-            level: 4,
-            color: '#1976D2',
-            title: 'Loại 4 – Ít khẩn',
-            timeDesc: 'Màu xanh dương – đánh giá & xử trí ≤ 45 phút',
-            criteria: [
-                'Xuất huyết nhẹ.',
-                'Dị vật đường thở nhưng không suy hô hấp.',
-                'Nuốt khó nhưng không suy hô hấp.',
-                'Chấn thương nhẹ không mất ý thức.',
-                'Nôn, tiêu chảy nhưng chưa mất nước.',
-                'Bong gân, gãy xương nghi ngờ, vết thương nhỏ cần xử trí.',
-                'Đau bụng không đặc hiệu.'
-            ]
-        },
-        5: {
-            level: 5,
-            color: '#388E3C',
-            title: 'Loại 5 – Không khẩn',
-            timeDesc: 'Màu xanh lá – đánh giá & xử trí ≤ 60 phút',
-            criteria: [
-                'Đau nhẹ, không dấu hiệu nguy cơ.',
-                'Bệnh mạn ổn định, không triệu chứng mới.',
-                'Vết thương nhỏ, trầy xước.',
-                'Bệnh tâm thần ổn định, không nguy cơ ngay.'
-            ]
-        }
-    };
-    
-    function toggleOption(questionId, checkbox) {
-        const level = parseInt(checkbox.value);
-        // Fix: Get text correctly from label structure
-        const optionText = checkbox.parentElement.querySelector('.option-text').textContent;
-        
-        console.log('Toggle option:', { questionId, level, optionText, checked: checkbox.checked });
-        
-        if (checkbox.checked) {
-            // Add to selected options
-            selectedOptions.push({
-                questionId: questionId,
-                level: level,
-                text: optionText
-            });
-        } else {
-            // Remove from selected options
-            selectedOptions = selectedOptions.filter(option => 
-                !(option.questionId === questionId && option.level === level && option.text === optionText)
-            );
-        }
-        
-        console.log('Current selected options:', selectedOptions);
+let selectedOptions = []; // Array to store selected {questionId, level, text}
+
+// Triage levels data from Khoa Luan
+const TRIAGE_LEVELS = {
+    1: {
+        level: 1,
+        color: '#D32F2F',
+        title: 'Loại 1 – Cấp cứu tối khẩn',
+        timeDesc: 'Màu đỏ – xử trí ngay lập tức',
+        criteria: [
+            'Ngừng tim, ngừng thở.',
+            'Nguy cơ tắc nghẽn đường thở ngay lập tức (tắc, phù nề, dị vật…).',
+            'Suy hô hấp cấp, nhịp thở < 10 lần/phút hoặc thở ngáp.',
+            'Huyết áp < 80 mmHg (người lớn) hoặc sốc nặng ở trẻ.',
+            'Rối loạn tri giác sâu (GCS < 9).',
+            'Co giật liên tục/kéo dài > 5 phút.',
+            'Rối loạn hành vi gây nguy hiểm nghiêm trọng.'
+        ]
+    },
+    2: {
+        level: 2,
+        color: '#FF9800',
+        title: 'Loại 2 – Rất khẩn',
+        timeDesc: 'Màu cam – đánh giá & xử trí ≤ 10 phút',
+        criteria: [
+            'Nguy cơ tắc đường thở.',
+            'Suy hô hấp nặng, SpO₂ < 90%.',
+            'Sốc tuần hoàn: da lạnh, nổi bông, tưới máu kém; nhịp tim < 50 hoặc > 150 lần/phút; hạ huyết áp, mất máu cấp nặng.',
+            'Đau ngực nghi do tim.',
+            'Đau dữ dội bất kỳ nguyên nhân nào.',
+            'Đường huyết < 3 mmol/L.',
+            'Rối loạn tri giác (GCS < 13), liệt nửa người, mất ngôn ngữ cấp.',
+            'Sốt có dấu hiệu hôn mê.',
+            'Nghi nhiễm trùng huyết, viêm màng não mô cầu.',
+            'Đa chấn thương nặng hoặc khu trú nặng.',
+            'Ngộ độc nặng.',
+            'Thuyên tắc phổi, phình bóc tách ĐMC bụng.'
+        ]
+    },
+    3: {
+        level: 3,
+        color: '#FBC02D',
+        title: 'Loại 3 – Khẩn',
+        timeDesc: 'Màu vàng – đánh giá & xử trí ≤ 30 phút',
+        criteria: [
+            'Tăng huyết áp nghiêm trọng.',
+            'Mất máu nghiêm trọng.',
+            'Khó thở mức độ vừa, SpO₂ 90–95%.',
+            'Cơn co giật đã hồi phục ý thức.',
+            'Sốt ở bệnh nhân suy giảm miễn dịch.',
+            'Nôn ói kéo dài, mất nước.',
+            'Chấn thương đầu mất ý thức thoáng qua.',
+            'Đau ngực không do tim mức độ vừa.',
+            'Đau bụng có nguy cơ.',
+            'Tổn thương chi mức độ vừa (biến dạng, dập nát).',
+            'Hành vi nguy cơ tự làm tổn thương, loạn thần cấp.'
+        ]
+    },
+    4: {
+        level: 4,
+        color: '#1976D2',
+        title: 'Loại 4 – Ít khẩn',
+        timeDesc: 'Màu xanh dương – đánh giá & xử trí ≤ 45 phút',
+        criteria: [
+            'Xuất huyết nhẹ.',
+            'Dị vật đường thở nhưng không suy hô hấp.',
+            'Nuốt khó nhưng không suy hô hấp.',
+            'Chấn thương nhẹ không mất ý thức.',
+            'Nôn, tiêu chảy nhưng chưa mất nước.',
+            'Bong gân, gãy xương nghi ngờ, vết thương nhỏ cần xử trí.',
+            'Đau bụng không đặc hiệu.'
+        ]
+    },
+    5: {
+        level: 5,
+        color: '#388E3C',
+        title: 'Loại 5 – Không khẩn',
+        timeDesc: 'Màu xanh lá – đánh giá & xử trí ≤ 60 phút',
+        criteria: [
+            'Đau nhẹ, không dấu hiệu nguy cơ.',
+            'Bệnh mạn ổn định, không triệu chứng mới.',
+            'Vết thương nhỏ, trầy xước.',
+            'Bệnh tâm thần ổn định, không nguy cơ ngay.'
+        ]
     }
+};
+
+function toggleOption(questionId, checkbox) {
+    const level = parseInt(checkbox.value);
+    // Fix: Get text correctly from label structure
+    const optionText = checkbox.parentElement.querySelector('.option-text').textContent;
     
-    function showClassificationResult() {
-        console.log('Show classification result called');
-        console.log('Current selected options:', selectedOptions);
-        
-        if (selectedOptions.length === 0) {
-            console.log('No options selected, showing warning');
-            showNotification('Vui lòng chọn ít nhất một triệu chứng', 'warning');
-            return;
-        }
-        
-        console.log('Calculating most critical level...');
-        // Find most critical level (lowest number)
-        let mostCriticalLevel = 5;
-        
-        for (let option of selectedOptions) {
-            console.log('Checking option:', option, 'Current most critical:', mostCriticalLevel);
-            mostCriticalLevel = Math.min(mostCriticalLevel, option.level);
-        }
-        
-        console.log('Final most critical level:', mostCriticalLevel);
-        
-        // Get triage level data
-        const triageLevel = TRIAGE_LEVELS[mostCriticalLevel];
-        console.log('Triage level data:', triageLevel);
-        
-        // Display result
-        displayClassificationResult(triageLevel, selectedOptions);
-    }
+    console.log('Toggle option:', { questionId, level, optionText, checked: checkbox.checked });
     
-    function displayClassificationResult(triageLevel, selectedOptions) {
-        const resultContainer = document.getElementById('classification-result');
-        const resultIcon = document.getElementById('result-icon');
-        const resultTitle = document.getElementById('result-title');
-        const resultDescription = document.getElementById('result-description');
-        const resultLevel = document.getElementById('result-level');
-        const criteriaList = document.getElementById('criteria-list');
-        
-        // Update result content
-        resultIcon.innerHTML = `<span class="material-icons" style="color: ${triageLevel.color};">assessment</span>`;
-        resultTitle.textContent = triageLevel.title;
-        resultDescription.textContent = triageLevel.timeDesc;
-        
-        // Update level indicator
-        resultLevel.className = `result-level level-${triageLevel.level}`;
-        resultLevel.innerHTML = `
-            <span class="level-indicator"></span>
-            <span class="level-text">Level ${triageLevel.level}</span>
-        `;
-        
-        // Update criteria list
-        criteriaList.innerHTML = triageLevel.criteria.map(criteria => 
-            `<li>${criteria}</li>`
-        ).join('');
-        
-        // Show selected symptoms
-        const selectedSymptoms = selectedOptions.map(option => 
-            `<li><strong>${option.text}</strong> (Level ${option.level})</li>`
-        ).join('');
-        
-        // Add selected symptoms to criteria
-        if (selectedSymptoms) {
-            const selectedDiv = document.createElement('div');
-            selectedDiv.className = 'selected-symptoms';
-            selectedDiv.innerHTML = `
-                <h4>Các triệu chứng đã chọn:</h4>
-                <ul>${selectedSymptoms}</ul>
-            `;
-            criteriaList.parentNode.insertBefore(selectedDiv, criteriaList.nextSibling);
-        }
-        
-        // Show result container
-        resultContainer.style.display = 'block';
-        
-        // Scroll to result
-        resultContainer.scrollIntoView({ behavior: 'smooth' });
-        
-        // Log classification result
-        console.log('Classification result:', {
-            level: triageLevel.level,
-            title: triageLevel.title,
-            selectedOptions: selectedOptions,
-            timestamp: new Date().toISOString()
+    if (checkbox.checked) {
+        // Add to selected options
+        selectedOptions.push({
+            questionId: questionId,
+            level: level,
+            text: optionText
         });
+    } else {
+        // Remove from selected options
+        selectedOptions = selectedOptions.filter(option => 
+            !(option.questionId === questionId && option.level === level && option.text === optionText)
+        );
+    }
+    
+    console.log('Current selected options:', selectedOptions);
+}
+
+function showClassificationResult() {
+    console.log('Show classification result called');
+    console.log('Current selected options:', selectedOptions);
+    
+    if (selectedOptions.length === 0) {
+        console.log('No options selected, showing warning');
+        showNotification('Vui lòng chọn ít nhất một triệu chứng', 'warning');
+        return;
+    }
+    
+    console.log('Calculating most critical level...');
+    // Find most critical level (lowest number)
+    let mostCriticalLevel = 5;
+    
+    for (let option of selectedOptions) {
+        console.log('Checking option:', option, 'Current most critical:', mostCriticalLevel);
+        mostCriticalLevel = Math.min(mostCriticalLevel, option.level);
+    }
+    
+    console.log('Final most critical level:', mostCriticalLevel);
+    
+    // Get triage level data
+    const triageLevel = TRIAGE_LEVELS[mostCriticalLevel];
+    console.log('Triage level data:', triageLevel);
+    
+    // Display result
+    displayClassificationResult(triageLevel, selectedOptions);
+}
+
+function displayClassificationResult(triageLevel, selectedOptions) {
+    const resultContainer = document.getElementById('classification-result');
+    const resultIcon = document.getElementById('result-icon');
+    const resultTitle = document.getElementById('result-title');
+    const resultDescription = document.getElementById('result-description');
+    const resultLevel = document.getElementById('result-level');
+    const criteriaList = document.getElementById('criteria-list');
+    
+    // Update result content
+    resultIcon.innerHTML = `<span class="material-icons" style="color: ${triageLevel.color};">assessment</span>`;
+    resultTitle.textContent = triageLevel.title;
+    resultDescription.textContent = triageLevel.timeDesc;
+    
+    // Update level indicator
+    resultLevel.className = `result-level level-${triageLevel.level}`;
+    resultLevel.innerHTML = `
+        <span class="level-indicator"></span>
+        <span class="level-text">Level ${triageLevel.level}</span>
+    `;
+    
+    // Update criteria list
+    criteriaList.innerHTML = triageLevel.criteria.map(criteria => 
+        `<li>${criteria}</li>`
+    ).join('');
+    
+    // Show selected symptoms
+    const selectedSymptoms = selectedOptions.map(option => 
+        `<li><strong>${option.text}</strong> (Level ${option.level})</li>`
+    ).join('');
+    
+    // Add selected symptoms to criteria
+    if (selectedSymptoms) {
+        const selectedDiv = document.createElement('div');
+        selectedDiv.className = 'selected-symptoms';
+        selectedDiv.innerHTML = `
+            <h4>Các triệu chứng đã chọn:</h4>
+            <ul>${selectedSymptoms}</ul>
+        `;
+        criteriaList.parentNode.insertBefore(selectedDiv, criteriaList.nextSibling);
+    }
+    
+    // Show result container
+    resultContainer.style.display = 'block';
+    
+    // Scroll to result
+    resultContainer.scrollIntoView({ behavior: 'smooth' });
+    
+    // Log classification result
+    console.log('Classification result:', {
+        level: triageLevel.level,
+        title: triageLevel.title,
+        selectedOptions: selectedOptions,
+        timestamp: new Date().toISOString()
+    });
+    
+    // Show notification
+    showNotification(`Phân loại: ${triageLevel.title}`, 'info');
+    
+    // If level 1 or 2, suggest emergency call
+    if (triageLevel.level <= 2) {
+        setTimeout(() => {
+            if (confirm(`${triageLevel.title}. Bạn có muốn gọi cấp cứu 115 không?`)) {
+                window.location.href = 'tel:115';
+                showNotification('Đã gọi cấp cứu 115', 'success');
+            }
+        }, 2000);
+    }
+}
+
+function resetClassification() {
+    console.log('Resetting classification...');
+    
+    // Clear selected options array
+    selectedOptions = [];
+    
+    // Uncheck all checkboxes
+    const checkboxes = document.querySelectorAll('.answer-checkbox input[type="checkbox"]');
+    console.log('Found checkboxes to reset:', checkboxes.length);
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    // Hide result
+    document.getElementById('classification-result').style.display = 'none';
+    
+    // Remove selected symptoms if exists
+    const selectedSymptoms = document.querySelector('.selected-symptoms');
+    if (selectedSymptoms) {
+        selectedSymptoms.remove();
+        console.log('Removed selected symptoms div');
+    }
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    console.log('Classification reset complete');
+    showNotification('Đã làm lại phân loại', 'info');
+}
+
+function showClassificationScreen() {
+    // Reset when entering screen
+    resetClassification();
+    showScreen('classification-screen');
+}
+
+function showEmergencyCallScreen() {
+    showScreen('emergency-call-screen');
+}
+
+// Emergency call function
+function callEmergency() {
+    // In a real app, this would call 115
+    // For demo, show confirmation
+    if (confirm('Bạn có muốn gọi cấp cứu 115 ngay không?')) {
+        // Open phone dialer with 115
+        window.location.href = 'tel:115';
         
         // Show notification
-        showNotification(`Phân loại: ${triageLevel.title}`, 'info');
+        showNotification('Đã gọi cấp cứu 115', 'success');
         
-        // If level 1 or 2, suggest emergency call
-        if (triageLevel.level <= 2) {
-            setTimeout(() => {
-                if (confirm(`${triageLevel.title}. Bạn có muốn gọi cấp cứu 115 không?`)) {
-                    window.location.href = 'tel:115';
-                    showNotification('Đã gọi cấp cứu 115', 'success');
-                }
-            }, 2000);
-        }
+        // Log the action
+        console.log('Emergency call initiated at:', new Date().toISOString());
     }
-    
-    function resetClassification() {
-        console.log('Resetting classification...');
-        
-        // Clear selected options array
-        selectedOptions = [];
-        
-        // Uncheck all checkboxes
-        const checkboxes = document.querySelectorAll('.answer-checkbox input[type="checkbox"]');
-        console.log('Found checkboxes to reset:', checkboxes.length);
-        
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = false;
-        });
-        
-        // Hide result
-        document.getElementById('classification-result').style.display = 'none';
-        
-        // Remove selected symptoms if exists
-        const selectedSymptoms = document.querySelector('.selected-symptoms');
-        if (selectedSymptoms) {
-            selectedSymptoms.remove();
-            console.log('Removed selected symptoms div');
-        }
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-        console.log('Classification reset complete');
-        showNotification('Đã làm lại phân loại', 'info');
-    }
-    
-    // Show classification screen
-    function showClassificationScreen() {
-        // Reset when entering screen
-        resetClassification();
-        showScreen('classification-screen');
-    }
-    
-    // Show emergency call screen
-    function showEmergencyCallScreen() {
-        showScreen('emergency-call-screen');
-    }
+}
 });
 
 // Theme Support (Dark/Light Mode)
