@@ -1635,19 +1635,105 @@ document.addEventListener('keydown', function(e) {
         }
     }
     
-    // Classification System
+    // Classification System - 5 Level Professional Medical Triage
     let classificationAnswers = {};
-    let totalQuestions = 5;
+    let totalQuestions = 6; // 6 groups
     
-    function evaluateAnswer(questionId, answer) {
-        // Store answer
-        classificationAnswers[questionId] = answer;
+    // Triage levels data from Khoa Luan
+    const TRIAGE_LEVELS = {
+        1: {
+            level: 1,
+            color: '#D32F2F',
+            title: 'Loại 1 – Cấp cứu tối khẩn',
+            timeDesc: 'Màu đỏ – xử trí ngay lập tức',
+            criteria: [
+                'Ngừng tim, ngừng thở.',
+                'Nguy cơ tắc nghẽn đường thở ngay lập tức (tắc, phù nề, dị vật…).',
+                'Suy hô hấp cấp, nhịp thở < 10 lần/phút hoặc thở ngáp.',
+                'Huyết áp < 80 mmHg (người lớn) hoặc sốc nặng ở trẻ.',
+                'Rối loạn tri giác sâu (GCS < 9).',
+                'Co giật liên tục/kéo dài > 5 phút.',
+                'Rối loạn hành vi gây nguy hiểm nghiêm trọng.'
+            ]
+        },
+        2: {
+            level: 2,
+            color: '#FF9800',
+            title: 'Loại 2 – Rất khẩn',
+            timeDesc: 'Màu cam – đánh giá & xử trí ≤ 10 phút',
+            criteria: [
+                'Nguy cơ tắc đường thở.',
+                'Suy hô hấp nặng, SpO₂ < 90%.',
+                'Sốc tuần hoàn: da lạnh, nổi bông, tưới máu kém; nhịp tim < 50 hoặc > 150 lần/phút; hạ huyết áp, mất máu cấp nặng.',
+                'Đau ngực nghi do tim.',
+                'Đau dữ dội bất kỳ nguyên nhân nào.',
+                'Đường huyết < 3 mmol/L.',
+                'Rối loạn tri giác (GCS < 13), liệt nửa người, mất ngôn ngữ cấp.',
+                'Sốt có dấu hiệu hôn mê.',
+                'Nghi nhiễm trùng huyết, viêm màng não mô cầu.',
+                'Đa chấn thương nặng hoặc khu trú nặng.',
+                'Ngộ độc nặng.',
+                'Thuyên tắc phổi, phình bóc tách ĐMC bụng.'
+            ]
+        },
+        3: {
+            level: 3,
+            color: '#FBC02D',
+            title: 'Loại 3 – Khẩn',
+            timeDesc: 'Màu vàng – đánh giá & xử trí ≤ 30 phút',
+            criteria: [
+                'Tăng huyết áp nghiêm trọng.',
+                'Mất máu nghiêm trọng.',
+                'Khó thở mức độ vừa, SpO₂ 90–95%.',
+                'Cơn co giật đã hồi phục ý thức.',
+                'Sốt ở bệnh nhân suy giảm miễn dịch.',
+                'Nôn ói kéo dài, mất nước.',
+                'Chấn thương đầu mất ý thức thoáng qua.',
+                'Đau ngực không do tim mức độ vừa.',
+                'Đau bụng có nguy cơ.',
+                'Tổn thương chi mức độ vừa (biến dạng, dập nát).',
+                'Hành vi nguy cơ tự làm tổn thương, loạn thần cấp.'
+            ]
+        },
+        4: {
+            level: 4,
+            color: '#1976D2',
+            title: 'Loại 4 – Ít khẩn',
+            timeDesc: 'Màu xanh dương – đánh giá & xử trí ≤ 45 phút',
+            criteria: [
+                'Xuất huyết nhẹ.',
+                'Dị vật đường thở nhưng không suy hô hấp.',
+                'Nuốt khó nhưng không suy hô hấp.',
+                'Chấn thương nhẹ không mất ý thức.',
+                'Nôn, tiêu chảy nhưng chưa mất nước.',
+                'Bong gân, gãy xương nghi ngờ, vết thương nhỏ cần xử trí.',
+                'Đau bụng không đặc hiệu.'
+            ]
+        },
+        5: {
+            level: 5,
+            color: '#388E3C',
+            title: 'Loại 5 – Không khẩn',
+            timeDesc: 'Màu xanh lá – đánh giá & xử trí ≤ 60 phút',
+            criteria: [
+                'Đau nhẹ, không dấu hiệu nguy cơ.',
+                'Bệnh mạn ổn định, không triệu chứng mới.',
+                'Vết thương nhỏ, trầy xước.',
+                'Bệnh tâm thần ổn định, không nguy cơ ngay.'
+            ]
+        }
+    };
+    
+    function evaluateAnswer(questionId, answerLevel) {
+        // Store answer with level
+        classificationAnswers[questionId] = answerLevel;
         
         // Mark button as selected
-        const buttons = document.querySelectorAll(`.question-card:nth-child(${questionId}) .answer-btn`);
+        const buttons = document.querySelectorAll(`.question-group:nth-child(${questionId}) .answer-btn`);
         buttons.forEach(btn => {
             btn.classList.remove('selected');
-            if (btn.textContent.toLowerCase() === answer.toLowerCase()) {
+            const btnLevel = parseInt(btn.getAttribute('onclick').match(/\d+/)[1]);
+            if (btnLevel === answerLevel) {
                 btn.classList.add('selected');
             }
         });
@@ -1659,67 +1745,45 @@ document.addEventListener('keydown', function(e) {
     }
     
     function calculateClassification() {
-        // Calculate score based on answers
-        let score = 0;
+        // Find the most critical level (lowest number)
+        let mostCriticalLevel = 5; // Start with least critical
         
-        // Scoring system - each "yes" answer adds points
-        if (classificationAnswers[1] === 'yes') score += 3; // Khó thở - high priority
-        if (classificationAnswers[2] === 'yes') score += 3; // Đau ngực - high priority
-        if (classificationAnswers[3] === 'yes') score += 4; // Mất ý thức - highest priority
-        if (classificationAnswers[4] === 'yes') score += 2; // Nhịp tim bất thường - medium priority
-        if (classificationAnswers[5] === 'yes') score += 2; // Huyết áp thấp - medium priority
-        
-        // Determine classification level
-        let level, title, description, icon, color;
-        
-        if (score >= 8) {
-            level = 4;
-            title = 'Level 4 - Khẩn cấp';
-            description = 'Cần cấp cứu y tế ngay lập tức. Gọi 115 ngay!';
-            icon = 'emergency';
-            color = '#F44336';
-        } else if (score >= 5) {
-            level = 3;
-            title = 'Level 3 - Cần can thiệp';
-            description = 'Cần can thiệp y tế khẩn cấp. Nhập viện ngay.';
-            icon = 'error';
-            color = '#FF5722';
-        } else if (score >= 2) {
-            level = 2;
-            title = 'Level 2 - Cần theo dõi';
-            description = 'Cần giám sát y tế thường xuyên. Kiểm tra hàng tuần.';
-            icon = 'warning';
-            color = '#FF9800';
-        } else {
-            level = 1;
-            title = 'Level 1 - An toàn';
-            description = 'Không nguy hiểm đến tính mạng. Tư vấn từ xa.';
-            icon = 'check_circle';
-            color = '#4CAF50';
+        for (let questionId in classificationAnswers) {
+            const answerLevel = classificationAnswers[questionId];
+            mostCriticalLevel = Math.min(mostCriticalLevel, answerLevel);
         }
         
+        // Get triage level data
+        const triageLevel = TRIAGE_LEVELS[mostCriticalLevel];
+        
         // Show result
-        showClassificationResult(level, title, description, icon, color);
+        showClassificationResult(triageLevel);
     }
     
-    function showClassificationResult(level, title, description, icon, color) {
+    function showClassificationResult(triageLevel) {
         const resultContainer = document.getElementById('classification-result');
         const resultIcon = document.getElementById('result-icon');
         const resultTitle = document.getElementById('result-title');
         const resultDescription = document.getElementById('result-description');
         const resultLevel = document.getElementById('result-level');
+        const criteriaList = document.getElementById('criteria-list');
         
         // Update result content
-        resultIcon.innerHTML = `<span class="material-icons" style="color: ${color};">${icon}</span>`;
-        resultTitle.textContent = title;
-        resultDescription.textContent = description;
+        resultIcon.innerHTML = `<span class="material-icons" style="color: ${triageLevel.color};">assessment</span>`;
+        resultTitle.textContent = triageLevel.title;
+        resultDescription.textContent = triageLevel.timeDesc;
         
         // Update level indicator
-        resultLevel.className = `result-level level-${level}`;
+        resultLevel.className = `result-level level-${triageLevel.level}`;
         resultLevel.innerHTML = `
             <span class="level-indicator"></span>
-            <span class="level-text">Level ${level}</span>
+            <span class="level-text">Level ${triageLevel.level}</span>
         `;
+        
+        // Update criteria list
+        criteriaList.innerHTML = triageLevel.criteria.map(criteria => 
+            `<li>${criteria}</li>`
+        ).join('');
         
         // Show result container
         resultContainer.style.display = 'block';
@@ -1729,14 +1793,24 @@ document.addEventListener('keydown', function(e) {
         
         // Log classification result
         console.log('Classification result:', {
-            level: level,
-            title: title,
+            level: triageLevel.level,
+            title: triageLevel.title,
             answers: classificationAnswers,
             timestamp: new Date().toISOString()
         });
         
         // Show notification
-        showNotification(`Phân loại: ${title}`, 'info');
+        showNotification(`Phân loại: ${triageLevel.title}`, 'info');
+        
+        // If level 1 or 2, suggest emergency call
+        if (triageLevel.level <= 2) {
+            setTimeout(() => {
+                if (confirm(`${triageLevel.title}. Bạn có muốn gọi cấp cứu 115 không?`)) {
+                    window.location.href = 'tel:115';
+                    showNotification('Đã gọi cấp cứu 115', 'success');
+                }
+            }, 2000);
+        }
     }
     
     function resetClassification() {

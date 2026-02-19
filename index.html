@@ -860,53 +860,110 @@
         <main class="screen-content">
             <div class="classification-container">
                 <div class="classification-header">
-                    <h2>🏥 Phân loại cấp cứu y tế thông minh</h2>
-                    <p>Trả lời các câu hỏi để xác định mức độ khẩn cấp</p>
+                    <h2>🏥 Phân loại cấp cứu y tế chuyên nghiệp</h2>
+                    <p>Hệ thống phân loại 5 cấp độ theo tiêu chuẩn y tế</p>
                 </div>
                 
                 <div class="questionnaire-container">
-                    <div class="question-card">
-                        <h3>Câu hỏi 1</h3>
-                        <p>Bệnh nhân có đang khó thở không?</p>
-                        <div class="answer-options">
-                            <button class="answer-btn" onclick="evaluateAnswer(1, 'no')">Không</button>
-                            <button class="answer-btn" onclick="evaluateAnswer(1, 'yes')">Có</button>
+                    <!-- Nhóm 1: Hô hấp / ý thức -->
+                    <div class="question-group">
+                        <h3 class="group-title">🫁 Hô hấp / ý thức</h3>
+                        <div class="question-card">
+                            <h4>Tình trạng hô hấp / ý thức?</h4>
+                            <div class="answer-options">
+                                <button class="answer-btn level-1" onclick="evaluateAnswer(1, 1)">Ngừng thở hoặc ngừng tim</button>
+                                <button class="answer-btn level-1" onclick="evaluateAnswer(1, 2)">Tắc nghẽn đường thở, phù nề, dị vật</button>
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(1, 3)">Suy hô hấp nặng (SpO₂ < 90%)</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(1, 4)">Khó thở vừa (SpO₂ 90–95%)</button>
+                                <button class="answer-btn level-4" onclick="evaluateAnswer(1, 5)">Dị vật / nuốt khó nhưng thở bình thường</button>
+                                <button class="answer-btn level-5" onclick="evaluateAnswer(1, 6)">Thở bình thường, không khó thở</button>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="question-card">
-                        <h3>Câu hỏi 2</h3>
-                        <p>Bệnh nhân có đau ngực không?</p>
-                        <div class="answer-options">
-                            <button class="answer-btn" onclick="evaluateAnswer(2, 'no')">Không</button>
-                            <button class="answer-btn" onclick="evaluateAnswer(2, 'yes')">Có</button>
+                    <!-- Nhóm 2: Tri giác / thần kinh -->
+                    <div class="question-group">
+                        <h3 class="group-title">🧠 Tri giác / thần kinh</h3>
+                        <div class="question-card">
+                            <h4>Tình trạng tri giác / thần kinh?</h4>
+                            <div class="answer-options">
+                                <button class="answer-btn level-1" onclick="evaluateAnswer(2, 1)">Hôn mê sâu (GCS < 9)</button>
+                                <button class="answer-btn level-1" onclick="evaluateAnswer(2, 2)">Co giật liên tục > 5 phút</button>
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(2, 3)">Rối loạn tri giác (GCS < 13), liệt nửa người</button>
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(2, 4)">Sốt có dấu hiệu hôn mê</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(2, 5)">Co giật đã hồi phục ý thức</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(2, 6)">Chấn thương đầu mất ý thức thoáng qua</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(2, 7)">Hành vi nguy cơ tự làm tổn thương, loạn thần cấp</button>
+                                <button class="answer-btn level-5" onclick="evaluateAnswer(2, 8)">Tâm thần ổn định, không nguy cơ ngay</button>
+                                <button class="answer-btn level-5" onclick="evaluateAnswer(2, 9)">Tỉnh táo, không rối loạn tri giác</button>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="question-card">
-                        <h3>Câu hỏi 3</h3>
-                        <p>Bệnh nhân có bị mất ý thức không?</p>
-                        <div class="answer-options">
-                            <button class="answer-btn" onclick="evaluateAnswer(3, 'no')">Không</button>
-                            <button class="answer-btn" onclick="evaluateAnswer(3, 'yes')">Có</button>
+                    <!-- Nhóm 3: Tuần hoàn / huyết áp -->
+                    <div class="question-group">
+                        <h3 class="group-title">❤️ Tuần hoàn / huyết áp</h3>
+                        <div class="question-card">
+                            <h4>Tình trạng tuần hoàn / huyết áp?</h4>
+                            <div class="answer-options">
+                                <button class="answer-btn level-1" onclick="evaluateAnswer(3, 1)">Ngừng tim / sốc nặng (HA < 80 mmHg)</button>
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(3, 2)">Sốc: da lạnh, nổi bông; nhịp < 50 hoặc > 150</button>
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(3, 3)">Đau ngực nghi do tim</button>
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(3, 4)">Mất máu cấp nặng</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(3, 5)">Tăng huyết áp nghiêm trọng</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(3, 6)">Mất máu nghiêm trọng</button>
+                                <button class="answer-btn level-4" onclick="evaluateAnswer(3, 7)">Xuất huyết nhẹ</button>
+                                <button class="answer-btn level-5" onclick="evaluateAnswer(3, 8)">Huyết áp ổn định, không sốc</button>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="question-card">
-                        <h3>Câu hỏi 4</h3>
-                        <p>Nhịp tim có bất thường không?</p>
-                        <div class="answer-options">
-                            <button class="answer-btn" onclick="evaluateAnswer(4, 'no')">Không</button>
-                            <button class="answer-btn" onclick="evaluateAnswer(4, 'yes')">Có</button>
+                    <!-- Nhóm 4: Đau / đường huyết / ngộ độc -->
+                    <div class="question-group">
+                        <h3 class="group-title">🩹 Đau / đường huyết / ngộ độc</h3>
+                        <div class="question-card">
+                            <h4>Đau / đường huyết / ngộ độc?</h4>
+                            <div class="answer-options">
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(4, 1)">Đường huyết < 3 mmol/L (hạ đường huyết nặng)</button>
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(4, 2)">Ngộ độc nặng</button>
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(4, 3)">Đau dữ dội bất kỳ nguyên nhân nào</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(4, 4)">Đau ngực không do tim mức độ vừa</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(4, 5)">Đau bụng có nguy cơ</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(4, 6)">Nôn ói kéo dài, mất nước</button>
+                                <button class="answer-btn level-4" onclick="evaluateAnswer(4, 7)">Đau bụng không đặc hiệu</button>
+                                <button class="answer-btn level-5" onclick="evaluateAnswer(4, 8)">Đau nhẹ, không dấu hiệu nguy cơ</button>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="question-card">
-                        <h3>Câu hỏi 5</h3>
-                        <p>Huyết áp có thấp không?</p>
-                        <div class="answer-options">
-                            <button class="answer-btn" onclick="evaluateAnswer(5, 'no')">Không</button>
-                            <button class="answer-btn" onclick="evaluateAnswer(5, 'yes')">Có</button>
+                    <!-- Nhóm 5: Chấn thương / tổn thương cơ thể -->
+                    <div class="question-group">
+                        <h3 class="group-title">🩹 Chấn thương / tổn thương cơ thể</h3>
+                        <div class="question-card">
+                            <h4>Chấn thương / tổn thương cơ thể?</h4>
+                            <div class="answer-options">
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(5, 1)">Đa chấn thương nặng hoặc khu trú nặng</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(5, 2)">Tổn thương chi mức độ vừa (biến dạng, dập nát)</button>
+                                <button class="answer-btn level-4" onclick="evaluateAnswer(5, 3)">Chấn thương nhẹ không mất ý thức</button>
+                                <button class="answer-btn level-4" onclick="evaluateAnswer(5, 4)">Bong gân, gãy xương nghi ngờ, vết thương nhỏ</button>
+                                <button class="answer-btn level-5" onclick="evaluateAnswer(5, 5)">Vết thương nhỏ, trầy xước</button>
+                                <button class="answer-btn level-5" onclick="evaluateAnswer(5, 6)">Không chấn thương</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Nhóm 6: Nhiễm trùng / bệnh nền -->
+                    <div class="question-group">
+                        <h3 class="group-title">🦠 Nhiễm trùng / bệnh nền</h3>
+                        <div class="question-card">
+                            <h4>Nhiễm trùng / bệnh nền?</h4>
+                            <div class="answer-options">
+                                <button class="answer-btn level-2" onclick="evaluateAnswer(6, 1)">Nghi nhiễm trùng huyết, viêm màng não mô cầu</button>
+                                <button class="answer-btn level-3" onclick="evaluateAnswer(6, 2)">Sốt ở bệnh nhân suy giảm miễn dịch</button>
+                                <button class="answer-btn level-4" onclick="evaluateAnswer(6, 3)">Nôn, tiêu chảy nhưng chưa mất nước</button>
+                                <button class="answer-btn level-5" onclick="evaluateAnswer(6, 4)">Bệnh mạn ổn định, không triệu chứng mới</button>
+                                <button class="answer-btn level-5" onclick="evaluateAnswer(6, 5)">Không sốt / không nghi nhiễm trùng nặng</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -922,6 +979,10 @@
                             <div class="result-level" id="result-level">
                                 <span class="level-indicator"></span>
                                 <span class="level-text"></span>
+                            </div>
+                            <div class="result-criteria" id="result-criteria">
+                                <h4>Tiêu chí phân loại:</h4>
+                                <ul id="criteria-list"></ul>
                             </div>
                         </div>
                     </div>
