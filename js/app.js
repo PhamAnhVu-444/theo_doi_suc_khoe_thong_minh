@@ -1618,8 +1618,9 @@ document.addEventListener('keydown', function(e) {
         e.preventDefault();
         showScreen('chat-screen');
     }
-    
-    // Classification System - 5 Level Professional Medical Triage (Khoa Luan Style)
+});
+
+// Classification System - 5 Level Professional Medical Triage (Khoa Luan Style)
 let selectedOptions = []; // Array to store selected {questionId, level, text}
 
 // Triage levels data from Khoa Luan
