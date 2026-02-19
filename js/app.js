@@ -1725,7 +1725,10 @@ document.addEventListener('keydown', function(e) {
     
     function toggleOption(questionId, checkbox) {
         const level = parseInt(checkbox.value);
-        const optionText = checkbox.nextElementSibling.nextElementSibling.textContent;
+        // Fix: Get text correctly from label structure
+        const optionText = checkbox.parentElement.querySelector('.option-text').textContent;
+        
+        console.log('Toggle option:', { questionId, level, optionText, checked: checkbox.checked });
         
         if (checkbox.checked) {
             // Add to selected options
@@ -1741,24 +1744,33 @@ document.addEventListener('keydown', function(e) {
             );
         }
         
-        console.log('Selected options:', selectedOptions);
+        console.log('Current selected options:', selectedOptions);
     }
     
     function showClassificationResult() {
+        console.log('Show classification result called');
+        console.log('Current selected options:', selectedOptions);
+        
         if (selectedOptions.length === 0) {
+            console.log('No options selected, showing warning');
             showNotification('Vui lòng chọn ít nhất một triệu chứng', 'warning');
             return;
         }
         
+        console.log('Calculating most critical level...');
         // Find most critical level (lowest number)
         let mostCriticalLevel = 5;
         
         for (let option of selectedOptions) {
+            console.log('Checking option:', option, 'Current most critical:', mostCriticalLevel);
             mostCriticalLevel = Math.min(mostCriticalLevel, option.level);
         }
         
+        console.log('Final most critical level:', mostCriticalLevel);
+        
         // Get triage level data
         const triageLevel = TRIAGE_LEVELS[mostCriticalLevel];
+        console.log('Triage level data:', triageLevel);
         
         // Display result
         displayClassificationResult(triageLevel, selectedOptions);
@@ -1834,10 +1846,16 @@ document.addEventListener('keydown', function(e) {
     }
     
     function resetClassification() {
+        console.log('Resetting classification...');
+        
+        // Clear selected options array
         selectedOptions = [];
         
         // Uncheck all checkboxes
-        document.querySelectorAll('.answer-checkbox input[type="checkbox"]').forEach(checkbox => {
+        const checkboxes = document.querySelectorAll('.answer-checkbox input[type="checkbox"]');
+        console.log('Found checkboxes to reset:', checkboxes.length);
+        
+        checkboxes.forEach(checkbox => {
             checkbox.checked = false;
         });
         
@@ -1848,11 +1866,13 @@ document.addEventListener('keydown', function(e) {
         const selectedSymptoms = document.querySelector('.selected-symptoms');
         if (selectedSymptoms) {
             selectedSymptoms.remove();
+            console.log('Removed selected symptoms div');
         }
         
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
+        console.log('Classification reset complete');
         showNotification('Đã làm lại phân loại', 'info');
     }
     
