@@ -1924,6 +1924,14 @@ window.resetClassification = resetClassification;
 window.showClassificationScreen = showClassificationScreen;
 window.showEmergencyCallScreen = showEmergencyCallScreen;
 
+// Debug: Check if functions are properly exported
+console.log('Functions exported:', {
+    toggleOption: typeof window.toggleOption,
+    showClassificationResult: typeof window.showClassificationResult,
+    resetClassification: typeof window.resetClassification,
+    showClassificationScreen: typeof window.showClassificationScreen
+});
+
 // Firebase functions
 window.saveHealthData = saveHealthData;
 window.saveUserProfile = saveUserProfile;
@@ -1935,9 +1943,9 @@ window.redrawAllCharts = redrawAllCharts;
 
 // Temperature settings functions
 window.showTemperatureSettings = showTemperatureSettings;
-window.closeTemperatureSettings = closeTemperatureSettings;
-window.updateTemperatureThresholds = updateTemperatureThresholds;
-window.saveTemperatureSettings = saveTemperatureSettings;
+window.hideTemperatureSettings = hideTemperatureSettings;
+window.setTemperatureUnit = setTemperatureUnit;
+window.toggleTemperatureUnit = toggleTemperatureUnit;
 
 // Patient info functions
 window.updateMonitorPatientInfo = updateMonitorPatientInfo;
