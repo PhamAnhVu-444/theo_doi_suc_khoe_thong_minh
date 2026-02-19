@@ -1885,7 +1885,6 @@ function callEmergency() {
         console.log('Emergency call initiated at:', new Date().toISOString());
     }
 }
-});
 
 // Theme Support (Dark/Light Mode)
 function toggleTheme() {
