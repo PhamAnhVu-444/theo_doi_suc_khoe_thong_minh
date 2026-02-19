@@ -1615,7 +1615,7 @@ gap: 0.5rem;
 /* Classification Screen */
 .classification-container {
     padding: 2rem;
-    max-width: 1200px;
+    max-width: 800px;
     margin: 0 auto;
 }
 
@@ -1635,34 +1635,114 @@ gap: 0.5rem;
     font-size: 1rem;
 }
 
-.classification-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+.questionnaire-container {
+    display: flex;
+    flex-direction: column;
     gap: 1.5rem;
-    margin-top: 2rem;
+    margin-bottom: 2rem;
 }
 
-.classification-card {
+.question-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.question-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.question-card h3 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.question-card p {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.answer-options {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.answer-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.answer-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.answer-btn.yes {
+    background: rgba(244, 67, 54, 0.2);
+    border-color: rgba(244, 67, 54, 0.4);
+}
+
+.answer-btn.yes:hover {
+    background: rgba(244, 67, 54, 0.3);
+    border-color: #f44336;
+}
+
+.answer-btn.no {
+    background: rgba(76, 175, 80, 0.2);
+    border-color: rgba(76, 175, 80, 0.4);
+}
+
+.answer-btn.no:hover {
+    background: rgba(76, 175, 80, 0.3);
+    border-color: #4CAF50;
+}
+
+.answer-btn.selected {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+.result-container {
+    margin-top: 2rem;
+    animation: slideIn 0.5s ease-out;
+}
+
+.result-card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     padding: 2rem;
     text-align: center;
-    transition: all 0.3s ease;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.classification-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-}
-
-.classification-icon {
+.result-icon {
     margin-bottom: 1.5rem;
 }
 
-.classification-icon .material-icons {
+.result-icon .material-icons {
     font-size: 4rem;
     padding: 1rem;
     border-radius: 50%;
@@ -1672,35 +1752,85 @@ gap: 0.5rem;
     justify-content: center;
 }
 
-.classification-card h3 {
+.result-content h3 {
     color: var(--text-primary);
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     margin-bottom: 1rem;
     font-weight: 600;
 }
 
-.classification-card p {
+.result-content p {
     color: var(--text-secondary);
+    font-size: 1.1rem;
     margin-bottom: 1.5rem;
     line-height: 1.6;
 }
 
-.classification-card ul {
-    list-style: none;
-    padding: 0;
-    text-align: left;
+.result-level {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.classification-card li {
-    color: var(--text-secondary);
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
+.level-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
 }
 
-.classification-card li:hover {
-    color: var(--primary-color);
-    padding-left: 0.5rem;
+.level-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Level colors */
+.level-1 .level-indicator {
+    background: #4CAF50;
+}
+
+.level-1 .level-text {
+    color: #4CAF50;
+}
+
+.level-2 .level-indicator {
+    background: #FF9800;
+}
+
+.level-2 .level-text {
+    color: #FF9800;
+}
+
+.level-3 .level-indicator {
+    background: #FF5722;
+}
+
+.level-3 .level-text {
+    color: #FF5722;
+}
+
+.level-4 .level-indicator {
+    background: #F44336;
+}
+
+.level-4 .level-text {
+    color: #F44336;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Emergency Call Screen */

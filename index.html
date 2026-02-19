@@ -860,61 +860,70 @@
         <main class="screen-content">
             <div class="classification-container">
                 <div class="classification-header">
-                    <h2>🏥 Phân loại cấp cứu y tế</h2>
-                    <p>Xác định mức độ khẩn cấp theo tiêu chuẩn y tế</p>
+                    <h2>🏥 Phân loại cấp cứu y tế thông minh</h2>
+                    <p>Trả lời các câu hỏi để xác định mức độ khẩn cấp</p>
                 </div>
                 
-                <div class="classification-grid">
-                    <div class="classification-card">
-                        <div class="classification-icon">
-                            <span class="material-icons" style="color: #4CAF50;">check_circle</span>
+                <div class="questionnaire-container">
+                    <div class="question-card">
+                        <h3>Câu hỏi 1</h3>
+                        <p>Bệnh nhân có đang khó thở không?</p>
+                        <div class="answer-options">
+                            <button class="answer-btn" onclick="evaluateAnswer(1, 'no')">Không</button>
+                            <button class="answer-btn" onclick="evaluateAnswer(1, 'yes')">Có</button>
                         </div>
-                        <h3>Level 1 - An toàn</h3>
-                        <p>Không nguy hiểm đến tính mạng</p>
-                        <ul>
-                            <li>Tư vấn từ xa</li>
-                            <li>Kiểm tra định kỳ</li>
-                            <li>Theo dõi sức khỏe tại nhà</li>
-                        </ul>
                     </div>
                     
-                    <div class="classification-card">
-                        <div class="classification-icon">
-                            <span class="material-icons" style="color: #FF9800;">warning</span>
+                    <div class="question-card">
+                        <h3>Câu hỏi 2</h3>
+                        <p>Bệnh nhân có đau ngực không?</p>
+                        <div class="answer-options">
+                            <button class="answer-btn" onclick="evaluateAnswer(2, 'no')">Không</button>
+                            <button class="answer-btn" onclick="evaluateAnswer(2, 'yes')">Có</button>
                         </div>
-                        <h3>Level 2 - Cần theo dõi</h3>
-                        <p>Cần giám sát y tế thường xuyên</p>
-                        <ul>
-                            <li>Kiểm tra hàng tuần</li>
-                            <li>Theo dõi triệu chứng</li>
-                            <li>Tư vấn y tế định kỳ</li>
-                        </ul>
                     </div>
                     
-                    <div class="classification-card">
-                        <div class="classification-icon">
-                            <span class="material-icons" style="color: #FF5722;">error</span>
+                    <div class="question-card">
+                        <h3>Câu hỏi 3</h3>
+                        <p>Bệnh nhân có bị mất ý thức không?</p>
+                        <div class="answer-options">
+                            <button class="answer-btn" onclick="evaluateAnswer(3, 'no')">Không</button>
+                            <button class="answer-btn" onclick="evaluateAnswer(3, 'yes')">Có</button>
                         </div>
-                        <h3>Level 3 - Cần can thiệp</h3>
-                        <p>Cần can thiệp y tế khẩn cấp</p>
-                        <ul>
-                            <li>Nhập viện ngay</li>
-                            <li>Gọi cấp cứu 115</li>
-                            <li>Theo dõi liên tục</li>
-                        </ul>
                     </div>
                     
-                    <div class="classification-card">
-                        <div class="classification-icon">
-                            <span class="material-icons" style="color: #F44336;">emergency</span>
+                    <div class="question-card">
+                        <h3>Câu hỏi 4</h3>
+                        <p>Nhịp tim có bất thường không?</p>
+                        <div class="answer-options">
+                            <button class="answer-btn" onclick="evaluateAnswer(4, 'no')">Không</button>
+                            <button class="answer-btn" onclick="evaluateAnswer(4, 'yes')">Có</button>
                         </div>
-                        <h3>Level 4 - Khẩn cấp</h3>
-                        <p>Cần cấp cứu y tế ngay lập tức</p>
-                        <ul>
-                            <li>Gọi 115 ngay</li>
-                            <li>Hồi sức tim</li>
-                            <li>CPR nếu cần</li>
-                        </ul>
+                    </div>
+                    
+                    <div class="question-card">
+                        <h3>Câu hỏi 5</h3>
+                        <p>Huyết áp có thấp không?</p>
+                        <div class="answer-options">
+                            <button class="answer-btn" onclick="evaluateAnswer(5, 'no')">Không</button>
+                            <button class="answer-btn" onclick="evaluateAnswer(5, 'yes')">Có</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-container" id="classification-result" style="display: none;">
+                    <div class="result-card">
+                        <div class="result-icon" id="result-icon">
+                            <span class="material-icons">assessment</span>
+                        </div>
+                        <div class="result-content">
+                            <h3 id="result-title">Đang phân loại...</h3>
+                            <p id="result-description">Vui lòng trả lời tất cả câu hỏi</p>
+                            <div class="result-level" id="result-level">
+                                <span class="level-indicator"></span>
+                                <span class="level-text"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

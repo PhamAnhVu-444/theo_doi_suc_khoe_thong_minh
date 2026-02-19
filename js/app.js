@@ -1635,8 +1635,129 @@ document.addEventListener('keydown', function(e) {
         }
     }
     
+    // Classification System
+    let classificationAnswers = {};
+    let totalQuestions = 5;
+    
+    function evaluateAnswer(questionId, answer) {
+        // Store answer
+        classificationAnswers[questionId] = answer;
+        
+        // Mark button as selected
+        const buttons = document.querySelectorAll(`.question-card:nth-child(${questionId}) .answer-btn`);
+        buttons.forEach(btn => {
+            btn.classList.remove('selected');
+            if (btn.textContent.toLowerCase() === answer.toLowerCase()) {
+                btn.classList.add('selected');
+            }
+        });
+        
+        // Check if all questions answered
+        if (Object.keys(classificationAnswers).length === totalQuestions) {
+            calculateClassification();
+        }
+    }
+    
+    function calculateClassification() {
+        // Calculate score based on answers
+        let score = 0;
+        
+        // Scoring system - each "yes" answer adds points
+        if (classificationAnswers[1] === 'yes') score += 3; // Khó thở - high priority
+        if (classificationAnswers[2] === 'yes') score += 3; // Đau ngực - high priority
+        if (classificationAnswers[3] === 'yes') score += 4; // Mất ý thức - highest priority
+        if (classificationAnswers[4] === 'yes') score += 2; // Nhịp tim bất thường - medium priority
+        if (classificationAnswers[5] === 'yes') score += 2; // Huyết áp thấp - medium priority
+        
+        // Determine classification level
+        let level, title, description, icon, color;
+        
+        if (score >= 8) {
+            level = 4;
+            title = 'Level 4 - Khẩn cấp';
+            description = 'Cần cấp cứu y tế ngay lập tức. Gọi 115 ngay!';
+            icon = 'emergency';
+            color = '#F44336';
+        } else if (score >= 5) {
+            level = 3;
+            title = 'Level 3 - Cần can thiệp';
+            description = 'Cần can thiệp y tế khẩn cấp. Nhập viện ngay.';
+            icon = 'error';
+            color = '#FF5722';
+        } else if (score >= 2) {
+            level = 2;
+            title = 'Level 2 - Cần theo dõi';
+            description = 'Cần giám sát y tế thường xuyên. Kiểm tra hàng tuần.';
+            icon = 'warning';
+            color = '#FF9800';
+        } else {
+            level = 1;
+            title = 'Level 1 - An toàn';
+            description = 'Không nguy hiểm đến tính mạng. Tư vấn từ xa.';
+            icon = 'check_circle';
+            color = '#4CAF50';
+        }
+        
+        // Show result
+        showClassificationResult(level, title, description, icon, color);
+    }
+    
+    function showClassificationResult(level, title, description, icon, color) {
+        const resultContainer = document.getElementById('classification-result');
+        const resultIcon = document.getElementById('result-icon');
+        const resultTitle = document.getElementById('result-title');
+        const resultDescription = document.getElementById('result-description');
+        const resultLevel = document.getElementById('result-level');
+        
+        // Update result content
+        resultIcon.innerHTML = `<span class="material-icons" style="color: ${color};">${icon}</span>`;
+        resultTitle.textContent = title;
+        resultDescription.textContent = description;
+        
+        // Update level indicator
+        resultLevel.className = `result-level level-${level}`;
+        resultLevel.innerHTML = `
+            <span class="level-indicator"></span>
+            <span class="level-text">Level ${level}</span>
+        `;
+        
+        // Show result container
+        resultContainer.style.display = 'block';
+        
+        // Scroll to result
+        resultContainer.scrollIntoView({ behavior: 'smooth' });
+        
+        // Log classification result
+        console.log('Classification result:', {
+            level: level,
+            title: title,
+            answers: classificationAnswers,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Show notification
+        showNotification(`Phân loại: ${title}`, 'info');
+    }
+    
+    function resetClassification() {
+        classificationAnswers = {};
+        
+        // Reset all buttons
+        document.querySelectorAll('.answer-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        
+        // Hide result
+        document.getElementById('classification-result').style.display = 'none';
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
     // Show classification screen
     function showClassificationScreen() {
+        // Reset when entering screen
+        resetClassification();
         showScreen('classification-screen');
     }
     
@@ -1676,6 +1797,10 @@ window.sendQuickMessage = sendQuickMessage;
 window.switchNewsTab = switchNewsTab;
 window.makeEmergencyCall = makeEmergencyCall;
 window.toggleTheme = toggleTheme;
+window.callEmergency = callEmergency;
+window.evaluateAnswer = evaluateAnswer;
+window.showClassificationScreen = showClassificationScreen;
+window.showEmergencyCallScreen = showEmergencyCallScreen;
 
 // Firebase functions
 window.saveHealthData = saveHealthData;
