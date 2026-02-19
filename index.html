@@ -225,17 +225,17 @@
                     </div>
                     <div class="feature-card" onclick="showScreen('classification-screen')">
                         <div class="feature-icon">
-                            <span class="material-icons">category</span>
+                            <span class="material-icons">assessment</span>
                         </div>
                         <h3>Phân loại</h3>
                         <p>Phân loại cấp cứu</p>
                     </div>
-                    <div class="feature-card" onclick="showScreen('emergency-call-screen')">
+                    <div class="feature-card" onclick="showScreen('chat-screen')">
                         <div class="feature-icon">
-                            <span class="material-icons">emergency</span>
+                            <span class="material-icons">chat</span>
                         </div>
-                        <h3>Cấp cứu</h3>
-                        <p>Gọi khẩn cấp</p>
+                        <h3>Chat AI</h3>
+                        <p>Tư vấn y tế AI</p>
                     </div>
                     <div class="feature-card" onclick="showScreen('notification-screen')">
                         <div class="feature-icon">
@@ -1158,51 +1158,6 @@
                             <div class="result-criteria" id="result-criteria">
                                 <h4>Tiêu chí phân loại:</h4>
                                 <ul id="criteria-list"></ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Emergency Call Screen -->
-    <div id="emergency-call-screen" class="screen">
-        <header class="screen-header">
-            <button class="back-btn" onclick="showScreen('dashboard-screen')">
-                <span class="material-icons">arrow_back</span>
-            </button>
-            <h1>Cấp cứu</h1>
-        </header>
-        <main class="screen-content">
-            <div class="emergency-container">
-                <div class="emergency-header">
-                    <h2>🚑 Gọi cấp cứu y tế</h2>
-                    <p>Nhấn nút dưới để gọi ngay lập tức</p>
-                </div>
-                
-                <div class="emergency-actions">
-                    <button class="emergency-call-btn" onclick="callEmergency()">
-                        <span class="material-icons">call</span>
-                        Gọi 115
-                    </button>
-                    
-                    <div class="emergency-info">
-                        <h3>Thông tin cấp cứu</h3>
-                        <div class="emergency-contacts">
-                            <div class="contact-item">
-                                <span class="material-icons">local_hospital</span>
-                                <div>
-                                    <strong>Cấp cứu 115</strong>
-                                    <p>Gọi ngay cho trường hợp khẩn cấp</p>
-                                </div>
-                            </div>
-                            <div class="contact-item">
-                                <span class="material-icons">medical_services</span>
-                                <div>
-                                    <strong>Bệnh viện gần nhất</strong>
-                                    <p>Tìm bệnh viện gần vị trí hiện tại</p>
-                                </div>
                             </div>
                         </div>
                     </div>

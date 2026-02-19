@@ -1867,10 +1867,6 @@ function showClassificationScreen() {
     showScreen('classification-screen');
 }
 
-function showEmergencyCallScreen() {
-    showScreen('emergency-call-screen');
-}
-
 // Emergency call function
 function callEmergency() {
     // In a real app, this would call 115
@@ -1922,7 +1918,6 @@ window.toggleOption = toggleOption;
 window.showClassificationResult = showClassificationResult;
 window.resetClassification = resetClassification;
 window.showClassificationScreen = showClassificationScreen;
-window.showEmergencyCallScreen = showEmergencyCallScreen;
 
 // Debug: Check if functions are properly exported
 console.log('Functions exported:', {
