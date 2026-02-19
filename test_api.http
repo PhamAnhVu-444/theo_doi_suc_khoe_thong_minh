@@ -1,0 +1,14 @@
+POST https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyAtJuqpypDNaftk2YqVjh5Cngl0eVfxZQ
+Content-Type: application/json
+
+{
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "Chào bạn, hãy cho tôi 3 lời khuyên sức khỏe ngắn gọn."
+        }
+      ]
+    }
+  ]
+}

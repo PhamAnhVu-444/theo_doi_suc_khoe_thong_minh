@@ -3,6 +3,86 @@ let currentScreen = 'splash-screen';
 let isTyping = false;
 let currentUser = null;
 let healthDataListener = null;
+
+// AI Health Chat with Ollama
+let isAIChatEnabled = false;
+let aiChatHistory = [];
+
+// Add message to chat
+function addMessage(message, type) {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}-message`;
+    
+    let icon = '';
+    if (type === 'ai') {
+        icon = '<img src="assets/logo_wed_1.png" alt="AI" class="message-avatar">';
+    } else if (type === 'system') {
+        icon = '<span class="material-icons">health_and_safety</span>';
+    } else if (type === 'user') {
+        icon = '<span class="material-icons">person</span>';
+    }
+    
+    messageDiv.innerHTML = `
+        <div class="message-content">
+            ${icon}
+            <p>${message}</p>
+        </div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Hide typing indicator
+function hideTypingIndicator() {
+    const typingIndicator = document.querySelector('.typing-indicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+    isTyping = false;
+}
+
+// Send quick message
+function sendQuickMessage(message) {
+    if (isTyping) return;
+    
+    // Add user message
+    addMessage(message, 'user');
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Handle with AI or fallback
+    handleChatMessage(message);
+}
+
+// Show typing indicator
+function showTypingIndicator() {
+    isTyping = true;
+    const messagesContainer = document.getElementById('chat-messages');
+    if (!messagesContainer) return;
+    
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message ai-message typing-indicator';
+    typingDiv.id = 'typing-indicator';
+    
+    typingDiv.innerHTML = `
+        <div class="message-content">
+            <img src="assets/logo_wed_1.png" alt="AI" class="message-avatar">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
 let profileDataListener = null;
 
 // Profile data storage
@@ -37,6 +117,133 @@ const temperatureThresholds = {
 let currentAgeGroup = '19-65';
 let enableTempWarning = true;
 
+// Check Ollama status
+async function checkOllamaStatus() {
+    const statusElement = document.getElementById('ai-status');
+    const statusText = document.getElementById('ai-status-text');
+    
+    try {
+        // Thử kết nối đến server trước
+        const testResponse = await fetch('http://localhost:3001/api/test');
+        const testData = await testResponse.json();
+        
+        if (testData.success) {
+            // Server hoạt động, kiểm tra Ollama
+            const response = await fetch('http://localhost:3001/api/status');
+            const data = await response.json();
+            
+            if (data.success && data.ollamaRunning) {
+                isAIChatEnabled = true;
+                console.log('🤖 Ollama AI is ready!');
+                
+                // Update UI
+                if (statusElement) {
+                    statusElement.classList.remove('disconnected');
+                    statusText.textContent = 'AI Y tế đã sẵn sàng';
+                }
+                return true;
+            } else {
+                isAIChatEnabled = false;
+                console.log('❌ Ollama is not running');
+                
+                // Update UI
+                if (statusElement) {
+                    statusElement.classList.add('disconnected');
+                    statusText.textContent = 'AI Y tế không khả dụng';
+                }
+                return false;
+            }
+        } else {
+            throw new Error('Server not responding');
+        }
+    } catch (error) {
+        isAIChatEnabled = false;
+        console.log('❌ Cannot connect to Ollama server:', error.message);
+        
+        // Update UI
+        if (statusElement) {
+            statusElement.classList.add('disconnected');
+            statusText.textContent = 'Không thể kết nối AI';
+        }
+        return false;
+    }
+}
+
+// Send message to AI Health Chat
+async function sendToAIHealthChat(message) {
+    if (!isAIChatEnabled) {
+        return "Xin lỗi, trợ lý AI y tế hiện không khả dụng. Vui lòng đảm bảo Ollama đang chạy.";
+    }
+
+    try {
+        const response = await fetch('http://localhost:3001/api/health-chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            return data.response;
+        } else {
+            return "Xin lỗi, có lỗi xảy ra khi kết nối với AI y tế.";
+        }
+    } catch (error) {
+        console.error('AI Chat Error:', error);
+        return "Xin lỗi, không thể kết nối với trợ lý AI y tế ngay bây giờ.";
+    }
+}
+
+// Enhanced chat message handler
+async function handleChatMessage(userMessage) {
+    const chatMessages = document.getElementById('chat-messages');
+    
+    try {
+        // Try AI Health Chat first
+        if (isAIChatEnabled) {
+            const aiResponse = await sendToAIHealthChat(userMessage);
+            hideTypingIndicator();
+            addMessage(aiResponse, 'ai');
+            
+            // Save to history
+            aiChatHistory.push({ user: userMessage, ai: aiResponse });
+        } else {
+            // Fallback to predefined responses
+            hideTypingIndicator();
+            const response = getHealthResponse(userMessage);
+            addMessage(response, 'system');
+        }
+    } catch (error) {
+        hideTypingIndicator();
+        addMessage("Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.", 'system');
+    }
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Get predefined health responses (fallback)
+function getHealthResponse(message) {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('sốt') || lowerMessage.includes('nhiệt độ')) {
+        return "Sốt là khi nhiệt độ cơ thể trên 37.5°C. Bạn nên nghỉ ngơi, uống nhiều nước và theo dõi nhiệt độ. Nếu sốt trên 39°C hoặc kéo dài trên 3 ngày, hãy đi khám bác sĩ.";
+    } else if (lowerMessage.includes('đau đầu')) {
+        return "Đau đầu có thể do nhiều nguyên nhân: stress, thiếu ngủ, hoặc các vấn đề sức khỏe. Bạn nên nghỉ ngơi trong phòng yên tĩnh. Nếu đau đầu dữ dội hoặc kèm theo các triệu chứng khác, hãy đi khám.";
+    } else if (lowerMessage.includes('ho')) {
+        return "Ho là phản xạ tự nhiên của cơ thể. Bạn nên uống ấm, nghỉ ngơi và tránh khói bụi. Nếu ho kéo dài trên 2 tuần hoặc có đờm màu lạ, hãy đi khám.";
+    } else if (lowerMessage.includes('mệt mỏi') || lowerMessage.includes('tired')) {
+        return "Cảm giác mệt mỏi có thể do thiếu ngủ, stress hoặc dinh dưỡng không đủ. Hãy đảm bảo ngủ đủ 7-8 tiếng, ăn uống cân bằng và tập thể dục nhẹ nhàng.";
+    } else if (lowerMessage.includes('khẩn cấp') || lowerMessage.includes('cấp cứu')) {
+        return "⚠️ TÌNH HUỐNG KHẨN CẤP - Hãy gọi ngay 115!\n\nCác dấu hiệu khẩn cấp:\n- Đau ngực dữ dội\n- Khó thở nghiêm trọng\n- Đột quỵ (mặt méo, nói khó)\n- Chảy máu không ngừng\n- Bất tỉnh";
+    } else {
+        return "Tôi là trợ lý y tế AI. Tôi có thể tư vấn về các triệu chứng thông thường. Tuy nhiên, tôi không thay thế được bác sĩ. Nếu bạn có triệu chứng nghiêm trọng, hãy đi khám hoặc gọi cấp cứu 115.";
+    }
+}
+
 // Initialize App
 document.addEventListener('DOMContentLoaded', function() {
     // Load saved temperature settings
@@ -60,6 +267,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeHealthCharts();
     initializeAnimations();
     setupFirebaseListeners();
+    
+    // Check Ollama status after 2 seconds
+    setTimeout(checkOllamaStatus, 2000);
 });
 
 // Firebase Initialization
@@ -600,6 +810,20 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
+// Send quick message
+function sendQuickMessage(message) {
+    if (isTyping) return;
+    
+    // Add user message
+    addMessage(message, 'user');
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Handle with AI or fallback
+    handleChatMessage(message);
+}
+
 // Simulate real-time health data updates (for demo)
 function simulateHealthDataUpdates() {
     if (!currentUser) return;
@@ -713,69 +937,82 @@ function handleKeyPress(event) {
 
 function sendMessage() {
     const messageInput = document.getElementById('message-input');
-    const message = messageInput.value.trim();
+    const chatMessages = document.getElementById('chat-messages');
     
-    if (message === '' || isTyping) return;
+    const message = messageInput.value.trim();
+    if (!message) return;
     
     // Add user message
     addMessage(message, 'user');
+    
+    // Clear input
     messageInput.value = '';
     
     // Show typing indicator
     showTypingIndicator();
     
-    // Simulate AI response
-    setTimeout(() => {
-        hideTypingIndicator();
-        const aiResponse = generateAIResponse(message);
-        addMessage(aiResponse, 'ai');
-    }, 1500);
+    // Handle with AI or fallback
+    handleChatMessage(message);
 }
 
-function sendQuickMessage(message) {
-    if (isTyping) return;
+// Show typing indicator
+function showTypingIndicator() {
+    const chatMessages = document.getElementById('chat-messages');
+    const typingId = 'typing-' + Date.now();
     
-    // Add user message
-    addMessage(message, 'user');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message ai-message typing';
+    typingDiv.id = typingId;
+    typingDiv.innerHTML = `
+        <div class="message-content">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    `;
     
-    // Show typing indicator
-    showTypingIndicator();
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
     
-    // Simulate AI response
-    setTimeout(() => {
-        hideTypingIndicator();
-        const aiResponse = generateAIResponse(message);
-        addMessage(aiResponse, 'ai');
-    }, 1500);
+    return typingId;
 }
 
-function addMessage(message, sender) {
-    const messagesContainer = document.getElementById('chat-messages');
-    if (!messagesContainer) return;
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}-message fade-in`;
-    
-    const avatarDiv = document.createElement('div');
-    avatarDiv.className = 'message-avatar';
-    const icon = document.createElement('span');
-    icon.className = 'material-icons';
-    icon.textContent = sender === 'user' ? 'person' : 'smart_toy';
-    avatarDiv.appendChild(icon);
-    
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-    const messageP = document.createElement('p');
-    messageP.textContent = message;
-    contentDiv.appendChild(messageP);
-    
-    messageDiv.appendChild(avatarDiv);
-    messageDiv.appendChild(contentDiv);
-    messagesContainer.appendChild(messageDiv);
-    
-    // Scroll to bottom
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+// Remove typing indicator
+function removeTypingIndicator(typingId) {
+    const typingElement = document.getElementById(typingId);
+    if (typingElement) {
+        typingElement.remove();
+    }
 }
+
+// Get predefined health responses (fallback)
+function getHealthResponse(message) {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('sốt') || lowerMessage.includes('nhiệt độ')) {
+        return "Sốt là khi nhiệt độ cơ thể trên 37.5°C. Bạn nên nghỉ ngơi, uống nhiều nước và theo dõi nhiệt độ. Nếu sốt trên 39°C hoặc kéo dài trên 3 ngày, hãy đi khám bác sĩ.";
+    } else if (lowerMessage.includes('đau đầu')) {
+        return "Đau đầu có thể do nhiều nguyên nhân: stress, thiếu ngủ, hoặc các vấn đề sức khỏe. Bạn nên nghỉ ngơi trong phòng yên tĩnh. Nếu đau đầu dữ dội hoặc kèm theo các triệu chứng khác, hãy đi khám.";
+    } else if (lowerMessage.includes('ho')) {
+        return "Ho là phản xạ tự nhiên của cơ thể. Bạn nên uống ấm, nghỉ ngơi và tránh khói bụi. Nếu ho kéo dài trên 2 tuần hoặc có đờm màu lạ, hãy đi khám.";
+    } else if (lowerMessage.includes('mệt mỏi') || lowerMessage.includes('tired')) {
+        return "Cảm giác mệt mỏi có thể do thiếu ngủ, stress hoặc dinh dưỡng không đủ. Hãy đảm bảo ngủ đủ 7-8 tiếng, ăn uống cân bằng và tập thể dục nhẹ nhàng.";
+    } else if (lowerMessage.includes('khẩn cấp') || lowerMessage.includes('cấp cứu')) {
+        return " TÌNH HUỐNG KHẨN CẤP - Hãy gọi ngay 115!\n\nCác dấu hiệu khẩn cấp:\n- Đau ngực dữ dội\n- Khó thở nghiêm trọng\n- Đột quỵ (mặt méo, nói khó)\n- Chảy máu không ngừng\n- Bất tỉnh";
+    } else {
+        return "Tôi là trợ lý y tế AI. Tôi có thể tư vấn về các triệu chứng thông thường. Tuy nhiên, tôi không thay thế được bác sĩ. Nếu bạn có triệu chứng nghiêm trọng, hãy đi khám hoặc gọi cấp cứu 115.";
+    }
+}
+
+// Initialize AI Chat on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    
+    // Check Ollama status after 2 seconds
+    setTimeout(checkOllamaStatus, 2000);
+});
 
 function showTypingIndicator() {
     isTyping = true;

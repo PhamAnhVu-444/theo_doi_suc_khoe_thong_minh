@@ -616,11 +616,13 @@
         </header>
         <main class="chat-content">
             <div class="chat-container">
+                <div class="ai-status" id="ai-status">
+                    <img src="assets/logo_wed_1.png" alt="AI Logo" class="ai-logo">
+                    <span id="ai-status-text">Đang kết nối AI y tế...</span>
+                </div>
+                
                 <div class="chat-messages" id="chat-messages">
                     <div class="message ai-message">
-                        <div class="message-avatar">
-                            <span class="material-icons">smart_toy</span>
-                        </div>
                         <div class="message-content">
                             <p>Xin chào! Tôi là hệ thống THEO DÕI THÔNG MINH. Tôi có thể giúp gì cho bạn về sức khỏe hôm nay?</p>
                         </div>
@@ -633,9 +635,9 @@
                         <button class="quick-action-btn" onclick="sendQuickMessage('Tôi bị sốt')">🌡️ Sốt</button>
                         <button class="quick-action-btn" onclick="sendQuickMessage('Tôi bị đau bụng')">🤢 Đau bụng</button>
                     </div>
-                    <div class="chat-input">
-                        <input type="text" id="message-input" placeholder="Nhập câu hỏi của bạn..." onkeypress="handleKeyPress(event)">
-                        <button onclick="sendMessage()">
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="message-input" class="chat-input" placeholder="Nhập câu hỏi của bạn..." onkeypress="handleKeyPress(event)">
+                        <button class="chat-send-btn" onclick="sendMessage()">
                             <span class="material-icons">send</span>
                         </button>
                     </div>

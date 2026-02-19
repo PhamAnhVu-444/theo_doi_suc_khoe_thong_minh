@@ -1,0 +1,25 @@
+{
+  "name": "theodoithongminh-ai-chat",
+  "version": "1.0.0",
+  "description": "Hệ thống giám sát sức khỏe thông minh với AI Chat y tế",
+  "main": "ollama-server.js",
+  "scripts": {
+    "start": "node ollama-server.js",
+    "dev": "node ollama-server.js",
+    "install-deps": "npm install"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "keywords": [
+    "healthcare",
+    "ai",
+    "chat",
+    "medical",
+    "ollama",
+    "llama3"
+  ],
+  "author": "Healthcare AI Team",
+  "license": "MIT"
+}
