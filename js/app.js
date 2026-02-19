@@ -1635,9 +1635,8 @@ document.addEventListener('keydown', function(e) {
         }
     }
     
-    // Classification System - 5 Level Professional Medical Triage
-    let classificationAnswers = {};
-    let totalQuestions = 6; // 6 groups
+    // Classification System - 5 Level Professional Medical Triage (Khoa Luan Style)
+    let selectedOptions = []; // Array to store selected {questionId, level, text}
     
     // Triage levels data from Khoa Luan
     const TRIAGE_LEVELS = {
@@ -1724,72 +1723,48 @@ document.addEventListener('keydown', function(e) {
         }
     };
     
-    function evaluateAnswer(questionId, answerLevel) {
-        console.log('Evaluating answer:', { questionId, answerLevel });
+    function toggleOption(questionId, checkbox) {
+        const level = parseInt(checkbox.value);
+        const optionText = checkbox.nextElementSibling.nextElementSibling.textContent;
         
-        // Store answer with level
-        classificationAnswers[questionId] = answerLevel;
+        if (checkbox.checked) {
+            // Add to selected options
+            selectedOptions.push({
+                questionId: questionId,
+                level: level,
+                text: optionText
+            });
+        } else {
+            // Remove from selected options
+            selectedOptions = selectedOptions.filter(option => 
+                !(option.questionId === questionId && option.level === level && option.text === optionText)
+            );
+        }
         
-        // Mark button as selected - Fixed selector
-        const questionGroup = document.querySelector(`.question-group:nth-child(${questionId})`);
-        if (!questionGroup) {
-            console.error('Question group not found:', questionId);
+        console.log('Selected options:', selectedOptions);
+    }
+    
+    function showClassificationResult() {
+        if (selectedOptions.length === 0) {
+            showNotification('Vui lòng chọn ít nhất một triệu chứng', 'warning');
             return;
         }
         
-        const buttons = questionGroup.querySelectorAll('.answer-btn');
-        console.log('Found buttons:', buttons.length);
+        // Find most critical level (lowest number)
+        let mostCriticalLevel = 5;
         
-        buttons.forEach(btn => {
-            btn.classList.remove('selected');
-            // Extract level from onclick attribute more safely
-            const onclickAttr = btn.getAttribute('onclick');
-            console.log('Button onclick:', onclickAttr);
-            
-            if (onclickAttr) {
-                const match = onclickAttr.match(/evaluateAnswer\(\s*\d+\s*,\s*(\d+)\s*\)/);
-                console.log('Match result:', match);
-                if (match) {
-                    const btnLevel = parseInt(match[1]);
-                    console.log('Button level:', btnLevel, 'Answer level:', answerLevel);
-                    if (btnLevel === answerLevel) {
-                        btn.classList.add('selected');
-                        console.log('Added selected class to button');
-                    }
-                }
-            }
-        });
-        
-        // Check current answers
-        console.log('Current answers:', classificationAnswers);
-        console.log('Answers length:', Object.keys(classificationAnswers).length, 'Total questions:', totalQuestions);
-        
-        // Check if all questions answered
-        if (Object.keys(classificationAnswers).length === totalQuestions) {
-            console.log('All questions answered, calculating classification...');
-            calculateClassification();
-        } else {
-            console.log('Not all questions answered yet');
-        }
-    }
-    
-    function calculateClassification() {
-        // Find the most critical level (lowest number)
-        let mostCriticalLevel = 5; // Start with least critical
-        
-        for (let questionId in classificationAnswers) {
-            const answerLevel = classificationAnswers[questionId];
-            mostCriticalLevel = Math.min(mostCriticalLevel, answerLevel);
+        for (let option of selectedOptions) {
+            mostCriticalLevel = Math.min(mostCriticalLevel, option.level);
         }
         
         // Get triage level data
         const triageLevel = TRIAGE_LEVELS[mostCriticalLevel];
         
-        // Show result
-        showClassificationResult(triageLevel);
+        // Display result
+        displayClassificationResult(triageLevel, selectedOptions);
     }
     
-    function showClassificationResult(triageLevel) {
+    function displayClassificationResult(triageLevel, selectedOptions) {
         const resultContainer = document.getElementById('classification-result');
         const resultIcon = document.getElementById('result-icon');
         const resultTitle = document.getElementById('result-title');
@@ -1814,6 +1789,22 @@ document.addEventListener('keydown', function(e) {
             `<li>${criteria}</li>`
         ).join('');
         
+        // Show selected symptoms
+        const selectedSymptoms = selectedOptions.map(option => 
+            `<li><strong>${option.text}</strong> (Level ${option.level})</li>`
+        ).join('');
+        
+        // Add selected symptoms to criteria
+        if (selectedSymptoms) {
+            const selectedDiv = document.createElement('div');
+            selectedDiv.className = 'selected-symptoms';
+            selectedDiv.innerHTML = `
+                <h4>Các triệu chứng đã chọn:</h4>
+                <ul>${selectedSymptoms}</ul>
+            `;
+            criteriaList.parentNode.insertBefore(selectedDiv, criteriaList.nextSibling);
+        }
+        
         // Show result container
         resultContainer.style.display = 'block';
         
@@ -1824,7 +1815,7 @@ document.addEventListener('keydown', function(e) {
         console.log('Classification result:', {
             level: triageLevel.level,
             title: triageLevel.title,
-            answers: classificationAnswers,
+            selectedOptions: selectedOptions,
             timestamp: new Date().toISOString()
         });
         
@@ -1843,18 +1834,26 @@ document.addEventListener('keydown', function(e) {
     }
     
     function resetClassification() {
-        classificationAnswers = {};
+        selectedOptions = [];
         
-        // Reset all buttons
-        document.querySelectorAll('.answer-btn').forEach(btn => {
-            btn.classList.remove('selected');
+        // Uncheck all checkboxes
+        document.querySelectorAll('.answer-checkbox input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
         });
         
         // Hide result
         document.getElementById('classification-result').style.display = 'none';
         
+        // Remove selected symptoms if exists
+        const selectedSymptoms = document.querySelector('.selected-symptoms');
+        if (selectedSymptoms) {
+            selectedSymptoms.remove();
+        }
+        
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        showNotification('Đã làm lại phân loại', 'info');
     }
     
     // Show classification screen
@@ -1901,7 +1900,9 @@ window.switchNewsTab = switchNewsTab;
 window.makeEmergencyCall = makeEmergencyCall;
 window.toggleTheme = toggleTheme;
 window.callEmergency = callEmergency;
-window.evaluateAnswer = evaluateAnswer;
+window.toggleOption = toggleOption;
+window.showClassificationResult = showClassificationResult;
+window.resetClassification = resetClassification;
 window.showClassificationScreen = showClassificationScreen;
 window.showEmergencyCallScreen = showEmergencyCallScreen;
 
