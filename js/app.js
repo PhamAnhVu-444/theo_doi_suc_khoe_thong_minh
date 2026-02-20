@@ -124,7 +124,7 @@ async function checkOllamaStatus() {
     
     try {
         // Thử kết nối đến server trước
-        const testResponse = await fetch('http://localhost:3001/api/test');
+        const testResponse = await fetch('http://localhost:3001/api/status');
         const testData = await testResponse.json();
         
         if (testData.success) {
@@ -132,7 +132,7 @@ async function checkOllamaStatus() {
             const response = await fetch('http://localhost:3001/api/status');
             const data = await response.json();
             
-            if (data.success && data.ollamaRunning) {
+            if (data.success && data.models && data.models.length > 0) {
                 isAIChatEnabled = true;
                 console.log('🤖 Ollama AI is ready!');
                 
@@ -144,7 +144,7 @@ async function checkOllamaStatus() {
                 return true;
             } else {
                 isAIChatEnabled = false;
-                console.log('❌ Ollama is not running');
+                console.log('❌ Ollama is not running or no models found');
                 
                 // Update UI
                 if (statusElement) {
