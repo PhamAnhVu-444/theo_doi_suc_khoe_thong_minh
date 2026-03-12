@@ -1945,19 +1945,70 @@ window.toggleTemperatureUnit = toggleTemperatureUnit;
 // Patient info functions
 window.updateMonitorPatientInfo = updateMonitorPatientInfo;
 window.exportPatientToPDF = exportPatientToPDF;
+window.createFullPatientPDF = createFullPatientPDF;
 
 // Export patient information to PDF
 function exportPatientToPDF() {
+    console.log('Export PDF function called');
+    
+    try {
+        // Check if jsPDF is loaded
+        if (typeof window.jspdf === 'undefined') {
+            console.error('jsPDF library not loaded');
+            showNotification('Thư viện PDF chưa tải. Vui lòng refresh trang.', 'error');
+            return;
+        }
+        
+        console.log('jsPDF loaded:', window.jspdf);
+        
+        // Test simple PDF creation first
+        console.log('Testing simple PDF creation...');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Add simple test text
+        doc.setFontSize(16);
+        doc.text('Test PDF Generation', 20, 20);
+        doc.setFontSize(12);
+        doc.text('This is a test PDF to verify functionality', 20, 30);
+        
+        // Save test PDF
+        doc.save('test.pdf');
+        console.log('Test PDF saved successfully');
+        
+        // Show success notification
+        showNotification('Test PDF đã được tạo thành công!', 'success');
+        
+        // Now try the full patient PDF
+        setTimeout(() => {
+            createFullPatientPDF();
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Error exporting PDF:', error);
+        showNotification('Lỗi khi xuất PDF: ' + error.message, 'error');
+    }
+}
+
+// Create full patient PDF
+function createFullPatientPDF() {
+    console.log('Creating full patient PDF...');
+    
     try {
         // Initialize jsPDF
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
+        console.log('PDF document created');
+        
         // Get current date
         const currentDate = new Date().toLocaleDateString('vi-VN');
         const currentTime = new Date().toLocaleTimeString('vi-VN');
         
+        console.log('Current date/time:', currentDate, currentTime);
+        
         // Get patient data from form
+        console.log('Getting patient data from form...');
         const patientData = {
             patientId: document.getElementById('patient-id').value || 'Chưa cập nhật',
             cccd: document.getElementById('cccd').value || 'Chưa cập nhật',
@@ -1981,6 +2032,8 @@ function exportPatientToPDF() {
             doctor: document.getElementById('doctor').value || 'Chưa cập nhật',
             nurses: document.getElementById('nurses').value || 'Chưa cập nhật'
         };
+        
+        console.log('Patient data collected:', patientData);
         
         // PDF Header
         doc.setFontSize(20);
@@ -2103,8 +2156,13 @@ function exportPatientToPDF() {
         // Generate filename
         const fileName = `HoSoBenhNhan_${patientData.fullName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`;
         
+        console.log('Generated filename:', fileName);
+        
         // Save the PDF
+        console.log('Saving PDF...');
         doc.save(fileName);
+        
+        console.log('PDF saved successfully');
         
         // Show success notification
         showNotification('Đã xuất hồ sơ bệnh nhân thành công!', 'success');
