@@ -1989,16 +1989,8 @@ function exportPatientToPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // Try to add Unicode font
-        try {
-            doc.addFont('dejavu-sans', 'dejavu-sans', 'normal');
-            doc.setFont('dejavu-sans');
-            console.log('Unicode font loaded successfully');
-        } catch (fontError) {
-            console.log('Unicode font not available, trying fallback...');
-            // Fallback to standard font with Vietnamese text
-            doc.setFont("helvetica");
-        }
+        // Use built-in fonts that support Unicode
+        console.log('Using built-in jsPDF fonts');
         
         // Add simple test text with Vietnamese
         doc.setFontSize(16);
@@ -2006,6 +1998,7 @@ function exportPatientToPDF() {
         doc.setFontSize(12);
         doc.text('This is a test PDF: Hệ thống y tế', 20, 30);
         doc.text('Tiếng Việt: Chào bạn', 20, 40);
+        doc.text('Công nghệ: Phần mềm y tế', 20, 50);
         
         // Save test PDF
         doc.save('test.pdf');
@@ -2034,17 +2027,8 @@ function createFullPatientPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // Try to use Unicode font
-        let unicodeFontAvailable = false;
-        try {
-            doc.addFont('dejavu-sans', 'dejavu-sans', 'normal');
-            doc.setFont('dejavu-sans');
-            unicodeFontAvailable = true;
-            console.log('Unicode font loaded successfully - Vietnamese text will display correctly');
-        } catch (fontError) {
-            console.log('Unicode font not available, using standard font');
-            doc.setFont("helvetica");
-        }
+        // Use built-in fonts
+        console.log('Using built-in jsPDF fonts - testing Vietnamese support');
         
         console.log('PDF document created');
         
