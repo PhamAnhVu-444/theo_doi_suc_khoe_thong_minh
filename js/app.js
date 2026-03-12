@@ -2412,30 +2412,12 @@ function createFullPatientPDF() {
                     margin: [0, 0, 0, 10]
                 },
                 
-                // Footer with signatures and logo
+                // Footer with signatures (temporary remove logo to avoid errors)
                 {
-                    columns: [
-                        {
-                            width: '50%',
-                            stack: [
-                                { text: 'Đây là tài liệu y tế bảo mật. Vui lòng bảo mật thông tin bệnh nhân.', fontSize: 10, alignment: 'left', margin: [0, 20, 0, 5] },
-                                { text: 'Hệ Thống Giám Sát Sức Khỏe Thông Minh', fontSize: 10, alignment: 'left', margin: [0, 0, 0, 10] }
-                            ]
-                        },
-                        {
-                            width: '50%',
-                            stack: [
-                                ...(logoImage ? [{
-                                    image: logoImage,
-                                    width: 40,
-                                    height: 40,
-                                    alignment: 'right',
-                                    margin: [0, 10, 0, 0]
-                                }] : [])
-                            ]
-                        }
-                    ],
-                    margin: [0, 30, 0, 0]
+                    stack: [
+                        { text: 'Đây là tài liệu y tế bảo mật. Vui lòng bảo mật thông tin bệnh nhân.', fontSize: 10, alignment: 'center', margin: [0, 30, 0, 5] },
+                        { text: 'Hệ Thống Giám Sát Sức Khỏe Thông Minh', fontSize: 10, alignment: 'center', margin: [0, 0, 0, 10] }
+                    ]
                 },
                 
                 // Signatures section
