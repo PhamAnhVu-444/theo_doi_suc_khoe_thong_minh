@@ -1966,6 +1966,9 @@ function exportPatientToPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
+        // Set font to support Unicode
+        doc.setFont("helvetica");
+        
         // Add simple test text
         doc.setFontSize(16);
         doc.text('Test PDF Generation', 20, 20);
@@ -1998,6 +2001,9 @@ function createFullPatientPDF() {
         // Initialize jsPDF
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
+        
+        // Set font to support better text rendering
+        doc.setFont("helvetica");
         
         console.log('PDF document created');
         
@@ -2038,36 +2044,36 @@ function createFullPatientPDF() {
         // PDF Header
         doc.setFontSize(20);
         doc.setTextColor(0, 102, 204);
-        doc.text('HỒ SƠ BỆNH NHÂN', 105, 20, { align: 'center' });
+        doc.text('HO SO BENH NHAN', 105, 20, { align: 'center' });
         
         doc.setFontSize(12);
         doc.setTextColor(100, 100, 100);
-        doc.text('Hệ thống Giám sát Sức khỏe Thông minh', 105, 28, { align: 'center' });
+        doc.text('He thong Giam sat Suc khoe Thong minh', 105, 28, { align: 'center' });
         
         // Hospital info
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
-        doc.text(`Ngày xuất: ${currentDate} lúc ${currentTime}`, 20, 40);
-        doc.text('Bệnh viện: Bệnh viện Đa khoa', 140, 40);
+        doc.text(`Ngay xuat: ${currentDate} luci ${currentTime}`, 20, 40);
+        doc.text('Benh vien: Benh vien Da khoa', 140, 40);
         
         // Patient basic information
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
-        doc.text('I. THÔNG TIN CƠ BẢN', 20, 55);
+        doc.text('I. THONG TIN CO BAN', 20, 55);
         
         doc.setFontSize(11);
         doc.setTextColor(0, 0, 0);
         
         const basicInfo = [
-            ['Mã số bệnh nhân:', patientData.patientId],
-            ['Mã CCCD:', patientData.cccd],
-            ['Mã BHYT:', patientData.bhyt],
-            ['Họ và tên:', patientData.fullName],
-            ['Ngày sinh:', patientData.dob],
-            ['Giới tính:', patientData.gender],
-            ['Quê quán:', patientData.hometown],
-            ['Số điện thoại:', patientData.phone],
-            ['Người thân:', patientData.relative]
+            ['Ma so benh nhan:', patientData.patientId],
+            ['Ma CCCD:', patientData.cccd],
+            ['Ma BHYT:', patientData.bhyt],
+            ['Ho va ten:', patientData.fullName],
+            ['Ngay sinh:', patientData.dob],
+            ['Gioi tinh:', patientData.gender],
+            ['Que quan:', patientData.hometown],
+            ['So dien thoai:', patientData.phone],
+            ['Nguoi than:', patientData.relative]
         ];
         
         let yPosition = 65;
@@ -2081,16 +2087,16 @@ function createFullPatientPDF() {
         yPosition += 5;
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
-        doc.text('II. THÔNG TIN THỂ CHẤT', 20, yPosition);
+        doc.text('II. THONG TIN THE CHAT', 20, yPosition);
         
         doc.setFontSize(11);
         doc.setTextColor(0, 0, 0);
         yPosition += 10;
         
         const physicalInfo = [
-            ['Cân nặng:', patientData.weight + ' kg'],
-            ['Chiều cao:', patientData.height + ' cm'],
-            ['Nhóm máu:', patientData.bloodType]
+            ['Can nang:', patientData.weight + ' kg'],
+            ['Chieu cao:', patientData.height + ' cm'],
+            ['Nhom mau:', patientData.bloodType]
         ];
         
         physicalInfo.forEach(([label, value]) => {
@@ -2103,19 +2109,19 @@ function createFullPatientPDF() {
         yPosition += 5;
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
-        doc.text('III. THÔNG TIN ĐIỀU TRỊ', 20, yPosition);
+        doc.text('III. THONG TIN DIEU TRI', 20, yPosition);
         
         doc.setFontSize(11);
         doc.setTextColor(0, 0, 0);
         yPosition += 10;
         
         const treatmentInfo = [
-            ['Phòng:', patientData.room],
-            ['Giường:', patientData.bed],
-            ['Ngày vào viện:', patientData.admissionDate],
-            ['Ngày ra viện:', patientData.dischargeDate],
-            ['Bác sĩ điều trị:', patientData.doctor],
-            ['Điều dưỡng:', patientData.nurses]
+            ['Phong:', patientData.room],
+            ['Giuong:', patientData.bed],
+            ['Ngay vao vien:', patientData.admissionDate],
+            ['Ngay ra vien:', patientData.dischargeDate],
+            ['Bac si dieu tri:', patientData.doctor],
+            ['Dieu duong:', patientData.nurses]
         ];
         
         treatmentInfo.forEach(([label, value]) => {
@@ -2128,7 +2134,7 @@ function createFullPatientPDF() {
         yPosition += 5;
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
-        doc.text('IV. THÔNG TIN Y TẾ', 20, yPosition);
+        doc.text('IV. THONG TIN Y TE', 20, yPosition);
         
         doc.setFontSize(11);
         doc.setTextColor(0, 0, 0);
@@ -2142,16 +2148,16 @@ function createFullPatientPDF() {
             return startY + (splitText.length * 7);
         };
         
-        yPosition = addWrappedText('Dị ứng:', patientData.allergies, yPosition);
-        yPosition = addWrappedText('Tiền sử bệnh:', patientData.medicalHistory, yPosition);
-        yPosition = addWrappedText('Tái khám định kỳ:', patientData.generalCheckup, yPosition);
+        yPosition = addWrappedText('Di ung:', patientData.allergies, yPosition);
+        yPosition = addWrappedText('Tien su benh:', patientData.medicalHistory, yPosition);
+        yPosition = addWrappedText('Tai kham dinh ky:', patientData.generalCheckup, yPosition);
         
         // Footer
         const footerY = 280;
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
-        doc.text('Đây là tài liệu y tế bảo mật. Vui lòng bảo mật thông tin bệnh nhân.', 105, footerY, { align: 'center' });
-        doc.text('Hệ thống Giám sát Sức khỏe Thông minh - Phiên bản 1.0', 105, footerY + 5, { align: 'center' });
+        doc.text('Day la tai lieu yte bao mat. Vui long bao mat thong tin benh nhan.', 105, footerY, { align: 'center' });
+        doc.text('He thong Giam sat Suc khoe Thong minh - Phien ban 1.0', 105, footerY + 5, { align: 'center' });
         
         // Generate filename
         const fileName = `HoSoBenhNhan_${patientData.fullName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`;
@@ -2165,7 +2171,7 @@ function createFullPatientPDF() {
         console.log('PDF saved successfully');
         
         // Show success notification
-        showNotification('Đã xuất hồ sơ bệnh nhân thành công!', 'success');
+        showNotification('Da xuat ho so benh nhan thanh cong!', 'success');
         console.log('Patient profile exported to PDF:', fileName);
         
     } catch (error) {
