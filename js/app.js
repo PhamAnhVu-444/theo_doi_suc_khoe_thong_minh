@@ -2412,14 +2412,6 @@ function createFullPatientPDF() {
                     margin: [0, 0, 0, 10]
                 },
                 
-                // Footer with signatures (temporary remove logo to avoid errors)
-                {
-                    stack: [
-                        { text: 'Đây là tài liệu y tế bảo mật. Vui lòng bảo mật thông tin bệnh nhân.', fontSize: 10, alignment: 'center', margin: [0, 30, 0, 5] },
-                        { text: 'Hệ Thống Giám Sát Sức Khỏe Thông Minh', fontSize: 10, alignment: 'center', margin: [0, 0, 0, 10] }
-                    ]
-                },
-                
                 // Signatures section
                 {
                     table: {
@@ -2456,6 +2448,14 @@ function createFullPatientPDF() {
                         vLineColor: '#cccccc'
                     },
                     margin: [0, 20, 0, 0]
+                },
+                
+                // Footer with security notice (at the very bottom)
+                {
+                    stack: [
+                        { text: 'Đây là tài liệu y tế bảo mật. Vui lòng bảo mật thông tin bệnh nhân.', fontSize: 10, alignment: 'center', margin: [0, 40, 0, 5] },
+                        { text: 'Hệ Thống Giám Sát Sức Khỏe Thông Minh', fontSize: 10, alignment: 'center', margin: [0, 0, 0, 10] }
+                    ]
                 }
             ],
             defaultStyle: {
