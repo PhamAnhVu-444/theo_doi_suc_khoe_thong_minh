@@ -2104,11 +2104,17 @@ function createFullPatientPDF() {
         
         if (profileImageElement && profileImageElement.src) {
             console.log('Found patient profile image:', profileImageElement.src);
+            console.log('Image complete URL:', profileImageElement.src);
+            console.log('Image naturalWidth:', profileImageElement.naturalWidth);
+            console.log('Image naturalHeight:', profileImageElement.naturalHeight);
+            
             // Convert relative path to absolute path for pdfmake
             const imageSrc = profileImageElement.src;
             
             // Check if it's a relative path and convert to absolute
             if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:')) {
+                console.log('Converting relative image to data URL...');
+                
                 // For pdfmake, we need to use data URL or absolute URL
                 try {
                     // Try to convert image to data URL
@@ -2116,25 +2122,45 @@ function createFullPatientPDF() {
                     const ctx = canvas.getContext('2d');
                     const img = new Image();
                     
+                    img.crossOrigin = 'Anonymous'; // Handle CORS
+                    
                     img.onload = function() {
+                        console.log('Image loaded successfully, dimensions:', img.width, 'x', img.height);
                         canvas.width = img.width;
                         canvas.height = img.height;
                         ctx.drawImage(img, 0, 0);
-                        patientImage = canvas.toDataURL('image/jpeg');
-                        console.log('Converted image to data URL');
+                        
+                        try {
+                            patientImage = canvas.toDataURL('image/jpeg', 0.8);
+                            console.log('Successfully converted image to data URL, length:', patientImage.length);
+                        } catch (canvasError) {
+                            console.log('Canvas toDataURL failed:', canvasError);
+                            patientImage = null;
+                        }
                     };
                     
-                    img.onerror = function() {
-                        console.log('Failed to load image for conversion');
+                    img.onerror = function(error) {
+                        console.log('Failed to load image for conversion:', error);
+                        console.log('Image src that failed:', imageSrc);
                         patientImage = null;
                     };
                     
+                    // Set timeout to avoid infinite loading
+                    setTimeout(() => {
+                        if (patientImage === null) {
+                            console.log('Image conversion timeout - using null');
+                            patientImage = null;
+                        }
+                    }, 5000);
+                    
                     img.src = imageSrc;
+                    
                 } catch (error) {
-                    console.log('Error converting image:', error);
+                    console.log('Error in image conversion setup:', error);
                     patientImage = null;
                 }
             } else {
+                console.log('Using existing image URL directly');
                 patientImage = imageSrc;
             }
         } else {
