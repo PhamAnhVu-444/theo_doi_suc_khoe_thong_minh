@@ -2187,15 +2187,31 @@ function createFullPatientPDF() {
         
         // Get and convert logo image
         console.log('Looking for logo image...');
-        const logoElement = document.querySelector('.header-logo');
+        let logoElement = document.querySelector('.header-logo');
         if (!logoElement) {
+            console.log('Header logo not found, trying logo images...');
             const logoImages = document.querySelectorAll('img[src*="logo"]');
             logoElement = logoImages[0];
+            console.log('Found logo images:', logoImages.length);
+        }
+        
+        if (!logoElement) {
+            console.log('Trying all images with logo in alt or class...');
+            const allImages = document.querySelectorAll('img');
+            for (let img of allImages) {
+                if (img.src && img.src.includes('logo')) {
+                    logoElement = img;
+                    break;
+                }
+            }
         }
         
         if (logoElement && logoElement.src) {
             console.log('Found logo element:', logoElement);
             console.log('Logo src:', logoElement.src);
+            console.log('Logo naturalWidth:', logoElement.naturalWidth);
+            console.log('Logo naturalHeight:', logoElement.naturalHeight);
+            console.log('Logo complete:', logoElement.complete);
             
             const logoSrc = logoElement.src;
             
@@ -2241,6 +2257,7 @@ function createFullPatientPDF() {
             }
         } else {
             console.log('No logo image found');
+            console.log('All images in page:', document.querySelectorAll('img'));
         }
         
         // Create PDF document definition with full Vietnamese Unicode support
