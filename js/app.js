@@ -1984,25 +1984,32 @@ function exportPatientToPDF() {
         
         console.log('jsPDF loaded:', window.jspdf);
         
-        // Test simple PDF creation first
+        // Create new document with specific configuration
         console.log('Testing simple PDF creation...');
         const { jsPDF } = window.jspdf;
         
         try {
-            const doc = new jsPDF();
+            // Create document with explicit font configuration
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
             console.log('PDF document created successfully');
             
-            // Use standard built-in fonts only - NO CUSTOM FONTS
-            console.log('Using standard built-in fonts only');
-            doc.setFont('helvetica'); // Explicitly set standard font
+            // Force use of standard font - NO CUSTOM FONTS AT ALL
+            console.log('Using standard Helvetica font only');
+            doc.setFont('helvetica', 'normal');
             
-            // Add simple test text with Vietnamese (using non-accented for compatibility)
+            // Add simple test text with ASCII only to avoid encoding issues
             doc.setFontSize(16);
             doc.text('Test PDF Generation', 20, 20);
             doc.setFontSize(12);
-            doc.text('This is a test PDF: He thong y te', 20, 30);
-            doc.text('Tieng Viet: Chao ban', 20, 40);
-            doc.text('Cong nghe: Phan mem y te', 20, 50);
+            doc.text('This is a test PDF', 20, 30);
+            doc.text('He thong y te', 20, 40);
+            doc.text('Tieng Viet: Chao ban', 20, 50);
+            doc.text('Cong nghe: Phan mem y te', 20, 60);
             
             // Save test PDF
             doc.save('test.pdf');
@@ -2032,7 +2039,7 @@ function createFullPatientPDF() {
     console.log('Creating full patient PDF...');
     
     try {
-        // Initialize jsPDF
+        // Initialize jsPDF with explicit configuration
         const { jsPDF } = window.jspdf;
         
         if (typeof jsPDF === 'undefined') {
@@ -2041,12 +2048,18 @@ function createFullPatientPDF() {
             return;
         }
         
-        const doc = new jsPDF();
+        // Create document with explicit configuration - NO CUSTOM FONTS
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+        
         console.log('PDF document created successfully');
         
-        // Use standard built-in fonts only - NO CUSTOM FONTS
-        console.log('Using standard built-in fonts only');
-        doc.setFont('helvetica'); // Explicitly set standard font
+        // Force use of standard font only
+        console.log('Using standard Helvetica font only - NO CUSTOM FONTS');
+        doc.setFont('helvetica', 'normal');
         
         // Get current date
         const currentDate = new Date().toLocaleDateString('vi-VN');
@@ -2191,11 +2204,11 @@ function createFullPatientPDF() {
         doc.setTextColor(0, 0, 0);
         yPosition += 10;
         
-        // Handle long text with word wrap (simplified to avoid font issues)
-        const addWrappedText = (label, text, startY) => {
+        // Simple text handling to avoid font width issues
+        const addSimpleText = (label, text, startY) => {
             doc.text(label, 20, startY);
-            // Simple text without complex wrapping to avoid font issues
-            const maxLength = 50;
+            // Limit text length to avoid complex text rendering issues
+            const maxLength = 45;
             if (text.length > maxLength) {
                 text = text.substring(0, maxLength) + '...';
             }
@@ -2203,9 +2216,9 @@ function createFullPatientPDF() {
             return startY + 8;
         };
         
-        yPosition = addWrappedText('Di ung:', patientData.allergies, yPosition);
-        yPosition = addWrappedText('Tien su benh:', patientData.medicalHistory, yPosition);
-        yPosition = addWrappedText('Tai kham dinh ky:', patientData.generalCheckup, yPosition);
+        yPosition = addSimpleText('Di ung:', patientData.allergies, yPosition);
+        yPosition = addSimpleText('Tien su benh:', patientData.medicalHistory, yPosition);
+        yPosition = addSimpleText('Tai kham dinh ky:', patientData.generalCheckup, yPosition);
         
         // Footer
         const footerY = 280;
