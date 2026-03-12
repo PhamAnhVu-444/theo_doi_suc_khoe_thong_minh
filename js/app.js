@@ -2069,6 +2069,14 @@ function createFullPatientPDF() {
         
         // Get patient data from form
         console.log('Getting patient data from form...');
+        
+        // Debug: Check if elements exist
+        console.log('Checking form elements:');
+        console.log('patient-id element:', document.getElementById('patient-id'));
+        console.log('full-name element:', document.getElementById('full-name'));
+        console.log('cccd element:', document.getElementById('cccd'));
+        console.log('bhyt element:', document.getElementById('bhyt'));
+        
         const patientData = {
             patientId: document.getElementById('patient-id').value || 'Chưa cập nhật',
             cccd: document.getElementById('cccd').value || 'Chưa cập nhật',
@@ -2093,7 +2101,48 @@ function createFullPatientPDF() {
             nurses: document.getElementById('nurses').value || 'Chưa cập nhật'
         };
         
-        console.log('Patient data collected:', patientData);
+        console.log('Raw patient data:', patientData);
+        
+        // Debug: Check each value
+        console.log('Debug - Patient data values:');
+        console.log('patientId:', patientData.patientId, 'length:', patientData.patientId.length);
+        console.log('fullName:', patientData.fullName, 'length:', patientData.fullName.length);
+        console.log('cccd:', patientData.cccd, 'length:', patientData.cccd.length);
+        console.log('bhyt:', patientData.bhyt, 'length:', patientData.bhyt.length);
+        
+        // Clean data for PDF - remove any special characters
+        const cleanData = (text) => {
+            if (!text) return 'Chưa cập nhật';
+            // Remove any special characters that might cause issues
+            return text.toString().replace(/[^\x20-\x7E]/g, '?');
+        };
+        
+        const cleanPatientData = {
+            patientId: cleanData(patientData.patientId),
+            cccd: cleanData(patientData.cccd),
+            bhyt: cleanData(patientData.bhyt),
+            fullName: cleanData(patientData.fullName),
+            dob: cleanData(patientData.dob),
+            gender: cleanData(patientData.gender),
+            hometown: cleanData(patientData.hometown),
+            phone: cleanData(patientData.phone),
+            relative: cleanData(patientData.relative),
+            weight: cleanData(patientData.weight),
+            height: cleanData(patientData.height),
+            room: cleanData(patientData.room),
+            bed: cleanData(patientData.bed),
+            admissionDate: cleanData(patientData.admissionDate),
+            dischargeDate: cleanData(patientData.dischargeDate),
+            bloodType: cleanData(patientData.bloodType),
+            allergies: cleanData(patientData.allergies),
+            medicalHistory: cleanData(patientData.medicalHistory),
+            generalCheckup: cleanData(patientData.generalCheckup),
+            doctor: cleanData(patientData.doctor),
+            nurses: cleanData(patientData.nurses)
+        };
+        
+        console.log('Cleaned patient data:', cleanPatientData);
+        console.log('Patient data collected:', cleanPatientData);
         
         // Use non-accented Vietnamese text for maximum compatibility
         const headerText = 'HO SO BENH NHAN';
@@ -2126,15 +2175,15 @@ function createFullPatientPDF() {
         doc.setTextColor(0, 0, 0);
         
         const basicInfo = [
-            ['Ma so benh nhan:', patientData.patientId],
-            ['Ma CCCD:', patientData.cccd],
-            ['Ma BHYT:', patientData.bhyt],
-            ['Ho va ten:', patientData.fullName],
-            ['Ngay sinh:', patientData.dob],
-            ['Gioi tinh:', patientData.gender],
-            ['Que quan:', patientData.hometown],
-            ['So dien thoai:', patientData.phone],
-            ['Nguoi than:', patientData.relative]
+            ['Ma so benh nhan:', cleanPatientData.patientId],
+            ['Ma CCCD:', cleanPatientData.cccd],
+            ['Ma BHYT:', cleanPatientData.bhyt],
+            ['Ho va ten:', cleanPatientData.fullName],
+            ['Ngay sinh:', cleanPatientData.dob],
+            ['Gioi tinh:', cleanPatientData.gender],
+            ['Que quan:', cleanPatientData.hometown],
+            ['So dien thoai:', cleanPatientData.phone],
+            ['Nguoi than:', cleanPatientData.relative]
         ];
         
         let yPosition = 65;
@@ -2156,9 +2205,9 @@ function createFullPatientPDF() {
         yPosition += 10;
         
         const physicalInfo = [
-            ['Can nang:', patientData.weight + ' kg'],
-            ['Chieu cao:', patientData.height + ' cm'],
-            ['Nhom mau:', patientData.bloodType]
+            ['Can nang:', cleanPatientData.weight + ' kg'],
+            ['Chieu cao:', cleanPatientData.height + ' cm'],
+            ['Nhom mau:', cleanPatientData.bloodType]
         ];
         
         physicalInfo.forEach(([label, value]) => {
@@ -2179,12 +2228,12 @@ function createFullPatientPDF() {
         yPosition += 10;
         
         const treatmentInfo = [
-            ['Phong:', patientData.room],
-            ['Giuong:', patientData.bed],
-            ['Ngay vao vien:', patientData.admissionDate],
-            ['Ngay ra vien:', patientData.dischargeDate],
-            ['Bac si dieu tri:', patientData.doctor],
-            ['Dieu duong:', patientData.nurses]
+            ['Phong:', cleanPatientData.room],
+            ['Giuong:', cleanPatientData.bed],
+            ['Ngay vao vien:', cleanPatientData.admissionDate],
+            ['Ngay ra vien:', cleanPatientData.dischargeDate],
+            ['Bac si dieu tri:', cleanPatientData.doctor],
+            ['Dieu duong:', cleanPatientData.nurses]
         ];
         
         treatmentInfo.forEach(([label, value]) => {
@@ -2216,9 +2265,9 @@ function createFullPatientPDF() {
             return startY + 8;
         };
         
-        yPosition = addSimpleText('Di ung:', patientData.allergies, yPosition);
-        yPosition = addSimpleText('Tien su benh:', patientData.medicalHistory, yPosition);
-        yPosition = addSimpleText('Tai kham dinh ky:', patientData.generalCheckup, yPosition);
+        yPosition = addSimpleText('Di ung:', cleanPatientData.allergies, yPosition);
+        yPosition = addSimpleText('Tien su benh:', cleanPatientData.medicalHistory, yPosition);
+        yPosition = addSimpleText('Tai kham dinh ky:', cleanPatientData.generalCheckup, yPosition);
         
         // Footer
         const footerY = 280;
@@ -2231,7 +2280,7 @@ function createFullPatientPDF() {
         doc.text(footerText2, 105, footerY + 5, { align: 'center' });
         
         // Generate filename
-        const fileName = `HoSoBenhNhan_${patientData.fullName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`;
+        const fileName = `HoSoBenhNhan_${cleanPatientData.fullName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`;
         
         console.log('Generated filename:', fileName);
         
