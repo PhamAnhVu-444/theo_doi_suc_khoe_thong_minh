@@ -2099,14 +2099,29 @@ function createFullPatientPDF() {
         console.log('Patient data collected:', patientData);
         
         // Get patient profile image
-        const profileImageElement = document.querySelector('.avatar-large img');
+        console.log('Looking for patient profile image...');
+        
+        // Try multiple selectors to find the image
+        let profileImageElement = document.querySelector('.avatar-large img');
+        if (!profileImageElement) {
+            profileImageElement = document.querySelector('.profile-avatar-section img');
+        }
+        if (!profileImageElement) {
+            profileImageElement = document.querySelector('#profile-screen img');
+        }
+        if (!profileImageElement) {
+            profileImageElement = document.querySelector('img[alt="Avatar"]');
+        }
+        
         let patientImage = null;
         
         if (profileImageElement && profileImageElement.src) {
-            console.log('Found patient profile image:', profileImageElement.src);
-            console.log('Image complete URL:', profileImageElement.src);
+            console.log('Found patient profile image element:', profileImageElement);
+            console.log('Image src:', profileImageElement.src);
             console.log('Image naturalWidth:', profileImageElement.naturalWidth);
             console.log('Image naturalHeight:', profileImageElement.naturalHeight);
+            console.log('Image complete:', profileImageElement.complete);
+            console.log('Image crossOrigin:', profileImageElement.crossOrigin);
             
             // Convert relative path to absolute path for pdfmake
             const imageSrc = profileImageElement.src;
@@ -2151,7 +2166,7 @@ function createFullPatientPDF() {
                             console.log('Image conversion timeout - using null');
                             patientImage = null;
                         }
-                    }, 5000);
+                    }, 3000);
                     
                     img.src = imageSrc;
                     
@@ -2165,6 +2180,7 @@ function createFullPatientPDF() {
             }
         } else {
             console.log('No patient profile image found');
+            console.log('Available images in DOM:', document.querySelectorAll('img'));
         }
         
         // Create PDF document definition with full Vietnamese Unicode support
