@@ -2192,17 +2192,69 @@ function createFullPatientPDF() {
                 { text: `Ngày xuất: ${currentDate} lúc ${currentTime}`, fontSize: 10, alignment: 'left', margin: [0, 10, 0, 0] },
                 { text: 'Bệnh viện: Bệnh viện Đa khoa', fontSize: 10, alignment: 'right', margin: [0, -15, 0, 0] },
                 
-                // Patient Profile Image
+                // Patient Profile Section with Image and Basic Info
                 ...(patientImage ? [{
-                    image: patientImage,
-                    width: 120,
-                    height: 120,
-                    alignment: 'center',
-                    margin: [0, 15, 0, 15],
-                    style: {
-                        border: [2, 'solid', '#cccccc'],
-                        borderRadius: 8
-                    }
+                    table: {
+                        widths: ['30%', '70%'],
+                        body: [
+                            [
+                                {
+                                    image: patientImage,
+                                    width: 100,
+                                    height: 100,
+                                    alignment: 'center',
+                                    margin: [10, 10, 10, 10]
+                                },
+                                [
+                                    {
+                                        text: patientData.fullName,
+                                        fontSize: 16,
+                                        bold: true,
+                                        margin: [0, 10, 0, 5]
+                                    },
+                                    {
+                                        text: `Mã bệnh nhân: ${patientData.patientId}`,
+                                        fontSize: 12,
+                                        margin: [0, 0, 0, 3]
+                                    },
+                                    {
+                                        text: `Ngày sinh: ${patientData.dob}`,
+                                        fontSize: 12,
+                                        margin: [0, 0, 0, 3]
+                                    },
+                                    {
+                                        text: `Giới tính: ${patientData.gender}`,
+                                        fontSize: 12,
+                                        margin: [0, 0, 0, 3]
+                                    },
+                                    {
+                                        text: `Nhóm máu: ${patientData.bloodType}`,
+                                        fontSize: 12,
+                                        margin: [0, 0, 0, 3]
+                                    }
+                                ]
+                            ]
+                        ]
+                    },
+                    layout: {
+                        hLineWidth: function(i, node) {
+                            return i === 0 || i === node.table.body.length ? 1 : 0;
+                        },
+                        vLineWidth: function(i, node) {
+                            return i === 0 || i === node.table.widths.length ? 1 : 0;
+                        },
+                        hLineColor: function(i, node) {
+                            return '#cccccc';
+                        },
+                        vLineColor: function(i, node) {
+                            return '#cccccc';
+                        },
+                        paddingLeft: function(i, node) { return 0; },
+                        paddingRight: function(i, node) { return 0; },
+                        paddingTop: function(i, node) { return 10; },
+                        paddingBottom: function(i, node) { return 10; }
+                    },
+                    margin: [0, 15, 0, 20]
                 }] : []),
                 
                 // Section 1: Basic Information
