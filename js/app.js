@@ -1987,30 +1987,38 @@ function exportPatientToPDF() {
         // Test simple PDF creation first
         console.log('Testing simple PDF creation...');
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
         
-        // Use built-in fonts that support Unicode
-        console.log('Using built-in jsPDF fonts');
-        
-        // Add simple test text with Vietnamese
-        doc.setFontSize(16);
-        doc.text('Test PDF Generation', 20, 20);
-        doc.setFontSize(12);
-        doc.text('This is a test PDF: Hệ thống y tế', 20, 30);
-        doc.text('Tiếng Việt: Chào bạn', 20, 40);
-        doc.text('Công nghệ: Phần mềm y tế', 20, 50);
-        
-        // Save test PDF
-        doc.save('test.pdf');
-        console.log('Test PDF saved successfully');
-        
-        // Show success notification
-        showNotification('Test PDF đã được tạo thành công!', 'success');
-        
-        // Now try the full patient PDF
-        setTimeout(() => {
-            createFullPatientPDF();
-        }, 1000);
+        try {
+            const doc = new jsPDF();
+            console.log('PDF document created successfully');
+            
+            // Use built-in fonts
+            console.log('Using built-in jsPDF fonts');
+            
+            // Add simple test text with Vietnamese
+            doc.setFontSize(16);
+            doc.text('Test PDF Generation', 20, 20);
+            doc.setFontSize(12);
+            doc.text('This is a test PDF: He thong y te', 20, 30);
+            doc.text('Tieng Viet: Chao ban', 20, 40);
+            doc.text('Cong nghe: Phan mem y te', 20, 50);
+            
+            // Save test PDF
+            doc.save('test.pdf');
+            console.log('Test PDF saved successfully');
+            
+            // Show success notification
+            showNotification('Test PDF đã được tạo thành công!', 'success');
+            
+            // Now try the full patient PDF
+            setTimeout(() => {
+                createFullPatientPDF();
+            }, 1000);
+            
+        } catch (pdfError) {
+            console.error('PDF creation error:', pdfError);
+            showNotification('Lỗi khi tạo PDF: ' + pdfError.message, 'error');
+        }
         
     } catch (error) {
         console.error('Error exporting PDF:', error);
@@ -2025,12 +2033,18 @@ function createFullPatientPDF() {
     try {
         // Initialize jsPDF
         const { jsPDF } = window.jspdf;
+        
+        if (typeof jsPDF === 'undefined') {
+            console.error('jsPDF is not available');
+            showNotification('Thư viện PDF không khả dụng', 'error');
+            return;
+        }
+        
         const doc = new jsPDF();
+        console.log('PDF document created successfully');
         
         // Use built-in fonts
         console.log('Using built-in jsPDF fonts - testing Vietnamese support');
-        
-        console.log('PDF document created');
         
         // Get current date
         const currentDate = new Date().toLocaleDateString('vi-VN');
@@ -2067,10 +2081,10 @@ function createFullPatientPDF() {
         console.log('Patient data collected:', patientData);
         
         // Use Vietnamese text with full accents
-        const headerText = 'HỒ SƠ Bệnh Nhân';
-        const systemText = 'Hệ Thống Giám Sát Sức Khỏe Thông Minh';
-        const dateText = `Ngày xuất: ${currentDate} lúc ${currentTime}`;
-        const hospitalText = 'Bệnh viện: Bệnh viện Đa khoa';
+        const headerText = 'HO SO BENH NHAN';
+        const systemText = 'He thong Giam sat Suc khoe Thong minh';
+        const dateText = `Ngay xuat: ${currentDate} luci ${currentTime}`;
+        const hospitalText = 'Benh vien: Benh vien Da khoa';
         
         // PDF Header
         doc.setFontSize(20);
@@ -2088,7 +2102,7 @@ function createFullPatientPDF() {
         doc.text(hospitalText, 140, 40);
         
         // Patient basic information
-        const section1Text = 'I. Thông Tin Cơ Bản';
+        const section1Text = 'I. THONG TIN CO BAN';
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
         doc.text(section1Text, 20, 55);
@@ -2097,15 +2111,15 @@ function createFullPatientPDF() {
         doc.setTextColor(0, 0, 0);
         
         const basicInfo = [
-            ['Mã số bệnh nhân:', patientData.patientId],
-            ['Mã CCCD:', patientData.cccd],
-            ['Mã BHYT:', patientData.bhyt],
-            ['Họ và tên:', patientData.fullName],
-            ['Ngày sinh:', patientData.dob],
-            ['Giới tính:', patientData.gender],
-            ['Quê quán:', patientData.hometown],
-            ['Số điện thoại:', patientData.phone],
-            ['Người thân:', patientData.relative]
+            ['Ma so benh nhan:', patientData.patientId],
+            ['Ma CCCD:', patientData.cccd],
+            ['Ma BHYT:', patientData.bhyt],
+            ['Ho va ten:', patientData.fullName],
+            ['Ngay sinh:', patientData.dob],
+            ['Gioi tinh:', patientData.gender],
+            ['Que quan:', patientData.hometown],
+            ['So dien thoai:', patientData.phone],
+            ['Nguoi than:', patientData.relative]
         ];
         
         let yPosition = 65;
@@ -2117,7 +2131,7 @@ function createFullPatientPDF() {
         
         // Physical information
         yPosition += 5;
-        const section2Text = 'II. Thông Tin Thể Chất';
+        const section2Text = 'II. THONG TIN THE CHAT';
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
         doc.text(section2Text, 20, yPosition);
@@ -2127,9 +2141,9 @@ function createFullPatientPDF() {
         yPosition += 10;
         
         const physicalInfo = [
-            ['Cân nặng:', patientData.weight + ' kg'],
-            ['Chiều cao:', patientData.height + ' cm'],
-            ['Nhóm máu:', patientData.bloodType]
+            ['Can nang:', patientData.weight + ' kg'],
+            ['Chieu cao:', patientData.height + ' cm'],
+            ['Nhom mau:', patientData.bloodType]
         ];
         
         physicalInfo.forEach(([label, value]) => {
@@ -2140,7 +2154,7 @@ function createFullPatientPDF() {
         
         // Treatment information
         yPosition += 5;
-        const section3Text = 'III. Thông Tin Điều Trị';
+        const section3Text = 'III. THONG TIN DIEU TRI';
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
         doc.text(section3Text, 20, yPosition);
@@ -2150,12 +2164,12 @@ function createFullPatientPDF() {
         yPosition += 10;
         
         const treatmentInfo = [
-            ['Phòng:', patientData.room],
-            ['Giường:', patientData.bed],
-            ['Ngày vào viện:', patientData.admissionDate],
-            ['Ngày ra viện:', patientData.dischargeDate],
-            ['Bác sĩ điều trị:', patientData.doctor],
-            ['Điều dưỡng:', patientData.nurses]
+            ['Phong:', patientData.room],
+            ['Giuong:', patientData.bed],
+            ['Ngay vao vien:', patientData.admissionDate],
+            ['Ngay ra vien:', patientData.dischargeDate],
+            ['Bac si dieu tri:', patientData.doctor],
+            ['Dieu duong:', patientData.nurses]
         ];
         
         treatmentInfo.forEach(([label, value]) => {
@@ -2166,7 +2180,7 @@ function createFullPatientPDF() {
         
         // Medical information
         yPosition += 5;
-        const section4Text = 'IV. Thông Tin Y Tế';
+        const section4Text = 'IV. THONG TIN Y TE';
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
         doc.text(section4Text, 20, yPosition);
@@ -2183,16 +2197,16 @@ function createFullPatientPDF() {
             return startY + (splitText.length * 7);
         };
         
-        yPosition = addWrappedText('Dị ứng:', patientData.allergies, yPosition);
-        yPosition = addWrappedText('Tiền sử bệnh:', patientData.medicalHistory, yPosition);
-        yPosition = addWrappedText('Tái khám định kỳ:', patientData.generalCheckup, yPosition);
+        yPosition = addWrappedText('Di ung:', patientData.allergies, yPosition);
+        yPosition = addWrappedText('Tien su benh:', patientData.medicalHistory, yPosition);
+        yPosition = addWrappedText('Tai kham dinh ky:', patientData.generalCheckup, yPosition);
         
         // Footer
         const footerY = 280;
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
-        const footerText1 = 'Đây là tài liệu y tế bảo mật. Vui lòng bảo mật thông tin bệnh nhân.';
-        const footerText2 = 'Hệ Thống Giám Sát Sức Khỏe Thông Minh - Phiên bản 1.0';
+        const footerText1 = 'Day la tai lieu yte bao mat. Vui long bao mat thong tin benh nhan.';
+        const footerText2 = 'He thong Giam sat Suc khoe Thong minh - Phien ban 1.0';
         
         doc.text(footerText1, 105, footerY, { align: 'center' });
         doc.text(footerText2, 105, footerY + 5, { align: 'center' });
@@ -2209,7 +2223,7 @@ function createFullPatientPDF() {
         console.log('PDF saved successfully');
         
         // Show success notification
-        showNotification('Đã xuất hồ sơ bệnh nhân thành công!', 'success');
+        showNotification('Da xuat ho so benh nhan thanh cong!', 'success');
         console.log('Patient profile exported to PDF:', fileName);
         
     } catch (error) {
