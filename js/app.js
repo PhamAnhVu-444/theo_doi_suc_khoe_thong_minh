@@ -2335,9 +2335,69 @@ function createFullPatientPDF() {
                     margin: [0, 0, 0, 10]
                 },
                 
-                // Footer
-                { text: 'Đây là tài liệu y tế bảo mật. Vui lòng bảo mật thông tin bệnh nhân.', fontSize: 10, alignment: 'center', margin: [0, 20, 0, 5] },
-                { text: 'Hệ Thống Giám Sát Sức Khỏe Thông Minh - Phiên bản 1.0', fontSize: 10, alignment: 'center', margin: [0, 0, 0, 0] }
+                // Footer with signatures and logo
+                {
+                    columns: [
+                        {
+                            width: '50%',
+                            stack: [
+                                { text: 'Đây là tài liệu y tế bảo mật. Vui lòng bảo mật thông tin bệnh nhân.', fontSize: 10, alignment: 'left', margin: [0, 20, 0, 5] },
+                                { text: 'Hệ Thống Giám Sát Sức Khỏe Thông Minh', fontSize: 10, alignment: 'left', margin: [0, 0, 0, 10] }
+                            ]
+                        },
+                        {
+                            width: '50%',
+                            stack: [
+                                {
+                                    image: 'assets/logo_app(1).png',
+                                    width: 40,
+                                    height: 40,
+                                    alignment: 'right',
+                                    margin: [0, 10, 0, 0]
+                                }
+                            ]
+                        }
+                    ],
+                    margin: [0, 30, 0, 0]
+                },
+                
+                // Signatures section
+                {
+                    table: {
+                        widths: ['50%', '50%'],
+                        body: [
+                            [
+                                {
+                                    stack: [
+                                        { text: 'Bác sĩ điều trị', fontSize: 12, bold: true, alignment: 'center', margin: [0, 30, 0, 5] },
+                                        { text: '(Ký và ghi rõ họ tên)', fontSize: 10, alignment: 'center', margin: [0, 40, 0, 5] },
+                                        { text: patientData.doctor || '................................................', fontSize: 12, alignment: 'center', margin: [0, 10, 0, 0] }
+                                    ],
+                                    border: [true, true, true, false]
+                                },
+                                {
+                                    stack: [
+                                        { text: 'Người nhà bệnh nhân', fontSize: 12, bold: true, alignment: 'center', margin: [0, 30, 0, 5] },
+                                        { text: '(Ký và ghi rõ họ tên)', fontSize: 10, alignment: 'center', margin: [0, 40, 0, 5] },
+                                        { text: patientData.relative || '................................................', fontSize: 12, alignment: 'center', margin: [0, 10, 0, 0] }
+                                    ],
+                                    border: [true, true, true, false]
+                                }
+                            ]
+                        ]
+                    },
+                    layout: {
+                        hLineWidth: function(i, node) {
+                            return i === 0 ? 1 : 0;
+                        },
+                        vLineWidth: function(i, node) {
+                            return i === 0 || i === node.table.widths.length ? 1 : 0;
+                        },
+                        hLineColor: '#cccccc',
+                        vLineColor: '#cccccc'
+                    },
+                    margin: [0, 20, 0, 0]
+                }
             ],
             defaultStyle: {
                 font: 'Roboto',
