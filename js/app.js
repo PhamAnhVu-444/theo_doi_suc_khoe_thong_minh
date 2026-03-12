@@ -2098,6 +2098,17 @@ function createFullPatientPDF() {
         
         console.log('Patient data collected:', patientData);
         
+        // Get patient profile image
+        const profileImageElement = document.getElementById('patient-profile-image');
+        let patientImage = null;
+        
+        if (profileImageElement && profileImageElement.src) {
+            console.log('Found patient profile image:', profileImageElement.src);
+            patientImage = profileImageElement.src;
+        } else {
+            console.log('No patient profile image found');
+        }
+        
         // Create PDF document definition with full Vietnamese Unicode support
         const docDefinition = {
             content: [
@@ -2106,6 +2117,15 @@ function createFullPatientPDF() {
                 { text: 'Hệ Thống Giám Sát Sức Khỏe Thông Minh', fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5] },
                 { text: `Ngày xuất: ${currentDate} lúc ${currentTime}`, fontSize: 10, alignment: 'left', margin: [0, 10, 0, 0] },
                 { text: 'Bệnh viện: Bệnh viện Đa khoa', fontSize: 10, alignment: 'right', margin: [0, -15, 0, 0] },
+                
+                // Patient Profile Image
+                ...(patientImage ? [{
+                    image: patientImage,
+                    width: 80,
+                    height: 80,
+                    alignment: 'center',
+                    margin: [0, 10, 0, 10]
+                }] : []),
                 
                 // Section 1: Basic Information
                 { text: 'I. THÔNG TIN CƠ BẢN', fontSize: 14, bold: true, color: '#0066CC', margin: [0, 20, 0, 10] },
