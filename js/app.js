@@ -2195,10 +2195,14 @@ function createFullPatientPDF() {
                 // Patient Profile Image
                 ...(patientImage ? [{
                     image: patientImage,
-                    width: 80,
-                    height: 80,
+                    width: 120,
+                    height: 120,
                     alignment: 'center',
-                    margin: [0, 10, 0, 10]
+                    margin: [0, 15, 0, 15],
+                    style: {
+                        border: [2, 'solid', '#cccccc'],
+                        borderRadius: 8
+                    }
                 }] : []),
                 
                 // Section 1: Basic Information
