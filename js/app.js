@@ -2104,7 +2104,39 @@ function createFullPatientPDF() {
         
         if (profileImageElement && profileImageElement.src) {
             console.log('Found patient profile image:', profileImageElement.src);
-            patientImage = profileImageElement.src;
+            // Convert relative path to absolute path for pdfmake
+            const imageSrc = profileImageElement.src;
+            
+            // Check if it's a relative path and convert to absolute
+            if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:')) {
+                // For pdfmake, we need to use data URL or absolute URL
+                try {
+                    // Try to convert image to data URL
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    img.onload = function() {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+                        patientImage = canvas.toDataURL('image/jpeg');
+                        console.log('Converted image to data URL');
+                    };
+                    
+                    img.onerror = function() {
+                        console.log('Failed to load image for conversion');
+                        patientImage = null;
+                    };
+                    
+                    img.src = imageSrc;
+                } catch (error) {
+                    console.log('Error converting image:', error);
+                    patientImage = null;
+                }
+            } else {
+                patientImage = imageSrc;
+            }
         } else {
             console.log('No patient profile image found');
         }
