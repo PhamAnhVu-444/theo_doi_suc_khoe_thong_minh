@@ -2101,7 +2101,7 @@ function createFullPatientPDF() {
         // Get patient profile image
         console.log('Looking for patient profile image...');
         
-        // Try multiple selectors to find the image
+        // Try multiple selectors to find image
         let profileImageElement = document.querySelector('.avatar-large img');
         if (!profileImageElement) {
             profileImageElement = document.querySelector('.profile-avatar-section img');
@@ -2114,7 +2114,9 @@ function createFullPatientPDF() {
         }
         
         let patientImage = null;
+        let logoImage = null;
         
+        // Process patient image
         if (profileImageElement && profileImageElement.src) {
             console.log('Found patient profile image element:', profileImageElement);
             console.log('Image src:', profileImageElement.src);
@@ -2181,6 +2183,64 @@ function createFullPatientPDF() {
         } else {
             console.log('No patient profile image found');
             console.log('Available images in DOM:', document.querySelectorAll('img'));
+        }
+        
+        // Get and convert logo image
+        console.log('Looking for logo image...');
+        const logoElement = document.querySelector('.header-logo');
+        if (!logoElement) {
+            const logoImages = document.querySelectorAll('img[src*="logo"]');
+            logoElement = logoImages[0];
+        }
+        
+        if (logoElement && logoElement.src) {
+            console.log('Found logo element:', logoElement);
+            console.log('Logo src:', logoElement.src);
+            
+            const logoSrc = logoElement.src;
+            
+            if (logoSrc && !logoSrc.startsWith('http') && !logoSrc.startsWith('data:')) {
+                console.log('Converting logo to data URL...');
+                
+                try {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    img.crossOrigin = 'Anonymous';
+                    
+                    img.onload = function() {
+                        console.log('Logo loaded successfully, dimensions:', img.width, 'x', img.height);
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+                        
+                        try {
+                            logoImage = canvas.toDataURL('image/png', 0.8);
+                            console.log('Successfully converted logo to data URL, length:', logoImage.length);
+                        } catch (canvasError) {
+                            console.log('Logo canvas toDataURL failed:', canvasError);
+                            logoImage = null;
+                        }
+                    };
+                    
+                    img.onerror = function(error) {
+                        console.log('Failed to load logo for conversion:', error);
+                        logoImage = null;
+                    };
+                    
+                    img.src = logoSrc;
+                    
+                } catch (error) {
+                    console.log('Error in logo conversion setup:', error);
+                    logoImage = null;
+                }
+            } else {
+                console.log('Using existing logo URL directly');
+                logoImage = logoSrc;
+            }
+        } else {
+            console.log('No logo image found');
         }
         
         // Create PDF document definition with full Vietnamese Unicode support
@@ -2348,13 +2408,13 @@ function createFullPatientPDF() {
                         {
                             width: '50%',
                             stack: [
-                                {
-                                    image: 'assets/logo_app(1).png',
+                                ...(logoImage ? [{
+                                    image: logoImage,
                                     width: 40,
                                     height: 40,
                                     alignment: 'right',
                                     margin: [0, 10, 0, 0]
-                                }
+                                }] : [])
                             ]
                         }
                     ],
