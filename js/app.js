@@ -2099,7 +2099,7 @@ function createFullPatientPDF() {
         console.log('Patient data collected:', patientData);
         
         // Get patient profile image
-        const profileImageElement = document.getElementById('patient-profile-image');
+        const profileImageElement = document.querySelector('.avatar-large img');
         let patientImage = null;
         
         if (profileImageElement && profileImageElement.src) {
