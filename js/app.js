@@ -1992,10 +1992,11 @@ function exportPatientToPDF() {
             const doc = new jsPDF();
             console.log('PDF document created successfully');
             
-            // Use built-in fonts
-            console.log('Using built-in jsPDF fonts');
+            // Use standard built-in fonts only - NO CUSTOM FONTS
+            console.log('Using standard built-in fonts only');
+            doc.setFont('helvetica'); // Explicitly set standard font
             
-            // Add simple test text with Vietnamese
+            // Add simple test text with Vietnamese (using non-accented for compatibility)
             doc.setFontSize(16);
             doc.text('Test PDF Generation', 20, 20);
             doc.setFontSize(12);
@@ -2043,8 +2044,9 @@ function createFullPatientPDF() {
         const doc = new jsPDF();
         console.log('PDF document created successfully');
         
-        // Use built-in fonts
-        console.log('Using built-in jsPDF fonts - testing Vietnamese support');
+        // Use standard built-in fonts only - NO CUSTOM FONTS
+        console.log('Using standard built-in fonts only');
+        doc.setFont('helvetica'); // Explicitly set standard font
         
         // Get current date
         const currentDate = new Date().toLocaleDateString('vi-VN');
@@ -2080,7 +2082,7 @@ function createFullPatientPDF() {
         
         console.log('Patient data collected:', patientData);
         
-        // Use Vietnamese text with full accents
+        // Use non-accented Vietnamese text for compatibility
         const headerText = 'HO SO BENH NHAN';
         const systemText = 'He thong Giam sat Suc khoe Thong minh';
         const dateText = `Ngay xuat: ${currentDate} luci ${currentTime}`;
@@ -2189,12 +2191,16 @@ function createFullPatientPDF() {
         doc.setTextColor(0, 0, 0);
         yPosition += 10;
         
-        // Handle long text with word wrap
+        // Handle long text with word wrap (simplified to avoid font issues)
         const addWrappedText = (label, text, startY) => {
             doc.text(label, 20, startY);
-            const splitText = doc.splitTextToSize(text, 110);
-            doc.text(splitText, 70, startY);
-            return startY + (splitText.length * 7);
+            // Simple text without complex wrapping to avoid font issues
+            const maxLength = 50;
+            if (text.length > maxLength) {
+                text = text.substring(0, maxLength) + '...';
+            }
+            doc.text(text, 70, startY);
+            return startY + 8;
         };
         
         yPosition = addWrappedText('Di ung:', patientData.allergies, yPosition);
