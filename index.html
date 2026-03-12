@@ -20,6 +20,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <!-- PDF Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </head>
             </div>
         </div>
@@ -434,6 +437,10 @@
                     <button class="btn-primary" onclick="updateMonitorPatientInfo()">
                         <span class="material-icons">save</span>
                         Lưu thông tin
+                    </button>
+                    <button class="btn-success" onclick="exportPatientToPDF()">
+                        <span class="material-icons">picture_as_pdf</span>
+                        Xuất PDF
                     </button>
                     <button class="btn-secondary" onclick="showScreen('dashboard-screen')">
                         <span class="material-icons">arrow_back</span>

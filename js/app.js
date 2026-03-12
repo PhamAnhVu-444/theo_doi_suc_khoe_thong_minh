@@ -1944,3 +1944,174 @@ window.toggleTemperatureUnit = toggleTemperatureUnit;
 
 // Patient info functions
 window.updateMonitorPatientInfo = updateMonitorPatientInfo;
+window.exportPatientToPDF = exportPatientToPDF;
+
+// Export patient information to PDF
+function exportPatientToPDF() {
+    try {
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Get current date
+        const currentDate = new Date().toLocaleDateString('vi-VN');
+        const currentTime = new Date().toLocaleTimeString('vi-VN');
+        
+        // Get patient data from form
+        const patientData = {
+            patientId: document.getElementById('patient-id').value || 'Chưa cập nhật',
+            cccd: document.getElementById('cccd').value || 'Chưa cập nhật',
+            bhyt: document.getElementById('bhyt').value || 'Chưa cập nhật',
+            fullName: document.getElementById('full-name').value || 'Chưa cập nhật',
+            dob: document.getElementById('dob').value || 'Chưa cập nhật',
+            gender: document.querySelector('input[name="gender"]:checked')?.value || 'Chưa cập nhật',
+            hometown: document.getElementById('hometown').value || 'Chưa cập nhật',
+            phone: document.getElementById('phone').value || 'Chưa cập nhật',
+            relative: document.getElementById('relative').value || 'Chưa cập nhật',
+            weight: document.getElementById('weight').value || 'Chưa cập nhật',
+            height: document.getElementById('height').value || 'Chưa cập nhật',
+            room: document.getElementById('room').value || 'Chưa cập nhật',
+            bed: document.getElementById('bed').value || 'Chưa cập nhật',
+            admissionDate: document.getElementById('admission-date').value || 'Chưa cập nhật',
+            dischargeDate: document.getElementById('discharge-date').value || 'Chưa cập nhật',
+            bloodType: document.getElementById('blood-type').value || 'Chưa cập nhật',
+            allergies: document.getElementById('allergies').value || 'Chưa cập nhật',
+            medicalHistory: document.getElementById('medical-history').value || 'Chưa cập nhật',
+            generalCheckup: document.getElementById('general-checkup').value || 'Chưa cập nhật',
+            doctor: document.getElementById('doctor').value || 'Chưa cập nhật',
+            nurses: document.getElementById('nurses').value || 'Chưa cập nhật'
+        };
+        
+        // PDF Header
+        doc.setFontSize(20);
+        doc.setTextColor(0, 102, 204);
+        doc.text('HỒ SƠ BỆNH NHÂN', 105, 20, { align: 'center' });
+        
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        doc.text('Hệ thống Giám sát Sức khỏe Thông minh', 105, 28, { align: 'center' });
+        
+        // Hospital info
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Ngày xuất: ${currentDate} lúc ${currentTime}`, 20, 40);
+        doc.text('Bệnh viện: Bệnh viện Đa khoa', 140, 40);
+        
+        // Patient basic information
+        doc.setFontSize(14);
+        doc.setTextColor(0, 102, 204);
+        doc.text('I. THÔNG TIN CƠ BẢN', 20, 55);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        
+        const basicInfo = [
+            ['Mã số bệnh nhân:', patientData.patientId],
+            ['Mã CCCD:', patientData.cccd],
+            ['Mã BHYT:', patientData.bhyt],
+            ['Họ và tên:', patientData.fullName],
+            ['Ngày sinh:', patientData.dob],
+            ['Giới tính:', patientData.gender],
+            ['Quê quán:', patientData.hometown],
+            ['Số điện thoại:', patientData.phone],
+            ['Người thân:', patientData.relative]
+        ];
+        
+        let yPosition = 65;
+        basicInfo.forEach(([label, value]) => {
+            doc.text(label, 20, yPosition);
+            doc.text(value, 70, yPosition);
+            yPosition += 8;
+        });
+        
+        // Physical information
+        yPosition += 5;
+        doc.setFontSize(14);
+        doc.setTextColor(0, 102, 204);
+        doc.text('II. THÔNG TIN THỂ CHẤT', 20, yPosition);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        yPosition += 10;
+        
+        const physicalInfo = [
+            ['Cân nặng:', patientData.weight + ' kg'],
+            ['Chiều cao:', patientData.height + ' cm'],
+            ['Nhóm máu:', patientData.bloodType]
+        ];
+        
+        physicalInfo.forEach(([label, value]) => {
+            doc.text(label, 20, yPosition);
+            doc.text(value, 70, yPosition);
+            yPosition += 8;
+        });
+        
+        // Treatment information
+        yPosition += 5;
+        doc.setFontSize(14);
+        doc.setTextColor(0, 102, 204);
+        doc.text('III. THÔNG TIN ĐIỀU TRỊ', 20, yPosition);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        yPosition += 10;
+        
+        const treatmentInfo = [
+            ['Phòng:', patientData.room],
+            ['Giường:', patientData.bed],
+            ['Ngày vào viện:', patientData.admissionDate],
+            ['Ngày ra viện:', patientData.dischargeDate],
+            ['Bác sĩ điều trị:', patientData.doctor],
+            ['Điều dưỡng:', patientData.nurses]
+        ];
+        
+        treatmentInfo.forEach(([label, value]) => {
+            doc.text(label, 20, yPosition);
+            doc.text(value, 70, yPosition);
+            yPosition += 8;
+        });
+        
+        // Medical information
+        yPosition += 5;
+        doc.setFontSize(14);
+        doc.setTextColor(0, 102, 204);
+        doc.text('IV. THÔNG TIN Y TẾ', 20, yPosition);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        yPosition += 10;
+        
+        // Handle long text with word wrap
+        const addWrappedText = (label, text, startY) => {
+            doc.text(label, 20, startY);
+            const splitText = doc.splitTextToSize(text, 110);
+            doc.text(splitText, 70, startY);
+            return startY + (splitText.length * 7);
+        };
+        
+        yPosition = addWrappedText('Dị ứng:', patientData.allergies, yPosition);
+        yPosition = addWrappedText('Tiền sử bệnh:', patientData.medicalHistory, yPosition);
+        yPosition = addWrappedText('Tái khám định kỳ:', patientData.generalCheckup, yPosition);
+        
+        // Footer
+        const footerY = 280;
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text('Đây là tài liệu y tế bảo mật. Vui lòng bảo mật thông tin bệnh nhân.', 105, footerY, { align: 'center' });
+        doc.text('Hệ thống Giám sát Sức khỏe Thông minh - Phiên bản 1.0', 105, footerY + 5, { align: 'center' });
+        
+        // Generate filename
+        const fileName = `HoSoBenhNhan_${patientData.fullName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`;
+        
+        // Save the PDF
+        doc.save(fileName);
+        
+        // Show success notification
+        showNotification('Đã xuất hồ sơ bệnh nhân thành công!', 'success');
+        console.log('Patient profile exported to PDF:', fileName);
+        
+    } catch (error) {
+        console.error('Error exporting PDF:', error);
+        showNotification('Lỗi khi xuất PDF. Vui lòng thử lại.', 'error');
+    }
+}
