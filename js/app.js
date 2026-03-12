@@ -1984,40 +1984,42 @@ function exportPatientToPDF() {
         
         console.log('jsPDF loaded:', window.jspdf);
         
-        // Test Vietnamese font for full Unicode support
-        console.log('Testing Vietnamese font for full Unicode support...');
+        // Test with different approach - use standard fonts with UTF-8 encoding
+        console.log('Testing standard fonts with UTF-8 encoding...');
         const { jsPDF } = window.jspdf;
         
         try {
             const doc = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
-                format: 'a4'
+                format: 'a4',
+                compress: true
             });
             
             console.log('PDF document created successfully');
             
-            // Try to add Vietnamese font
-            console.log('Attempting to add Vietnamese font...');
-            try {
-                doc.addFont('VN-Arial', 'VN-Arial', 'normal');
-                doc.setFont('VN-Arial', 'normal');
-                console.log('Vietnamese font loaded successfully');
-            } catch (fontError) {
-                console.log('Vietnamese font not available, using fallback:', fontError.message);
-                doc.setFont('helvetica', 'normal');
-            }
+            // Use standard font but with proper encoding
+            console.log('Using standard font with UTF-8 encoding...');
+            doc.setFont('helvetica', 'normal');
             
-            // Add test text with Vietnamese accents
+            // Add test text - try both accented and non-accented
             doc.setFontSize(16);
             doc.text('Test PDF Generation', 20, 20);
             doc.setFontSize(12);
-            doc.text('Hệ thống y tế', 20, 30);
-            doc.text('Tiếng Việt: Chào bạn', 20, 40);
-            doc.text('Công nghệ: Phần mềm y tế', 20, 50);
-            doc.text('Đặc điểm: Đa dạng chữ', 20, 60);
-            doc.text('Nguyễn Văn Á', 20, 70);
-            doc.text('Bệnh viện: Bệnh viện Đa khoa', 20, 80);
+            doc.text('He thong y te', 20, 30);
+            doc.text('Nguyen Van A', 20, 40);
+            doc.text('Benh vien Da khoa', 20, 50);
+            
+            // Try accented Vietnamese
+            try {
+                doc.text('Hệ thống y tế', 20, 60);
+                doc.text('Nguyễn Văn Á', 20, 70);
+                console.log('Vietnamese accents rendered successfully');
+            } catch (accentError) {
+                console.log('Vietnamese accents failed, using non-accented:', accentError.message);
+                doc.text('He thong y te', 20, 60);
+                doc.text('Nguyen Van A', 20, 70);
+            }
             
             // Save test PDF
             doc.save('test.pdf');
@@ -2065,18 +2067,9 @@ function createFullPatientPDF() {
         
         console.log('PDF document created successfully');
         
-        // Try to add Vietnamese font
-        console.log('Attempting to add Vietnamese font...');
-        let vietnameseFontAvailable = false;
-        try {
-            doc.addFont('VN-Arial', 'VN-Arial', 'normal');
-            doc.setFont('VN-Arial', 'normal');
-            vietnameseFontAvailable = true;
-            console.log('Vietnamese font loaded successfully');
-        } catch (fontError) {
-            console.log('Vietnamese font not available, using fallback:', fontError.message);
-            doc.setFont('helvetica', 'normal');
-        }
+        // Use simple approach - standard font only
+        console.log('Using standard font approach...');
+        doc.setFont('helvetica', 'normal');
         
         // Get current date
         const currentDate = new Date().toLocaleDateString('vi-VN');
@@ -2120,55 +2113,29 @@ function createFullPatientPDF() {
         
         console.log('Raw patient data:', patientData);
         
-        // Debug: Check each value
-        console.log('Debug - Patient data values:');
-        console.log('patientId:', patientData.patientId, 'length:', patientData.patientId.length);
-        console.log('fullName:', patientData.fullName, 'length:', patientData.fullName.length);
-        console.log('cccd:', patientData.cccd, 'length:', patientData.cccd.length);
-        console.log('bhyt:', patientData.bhyt, 'length:', patientData.bhyt.length);
-        
-        // Clean data for PDF - remove any special characters
-        const cleanData = (text) => {
-            if (!text) return 'Chưa cập nhật';
-            // Remove any special characters that might cause issues
-            return text.toString().replace(/[^\x20-\x7E]/g, '?');
+        // Function to remove Vietnamese accents
+        const removeAccents = (str) => {
+            if (!str) return 'Chưa cập nhật';
+            return str.toString()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[đĐ]/g, (match) => match === 'đ' ? 'd' : 'D')
+                .replace(/[^\x20-\x7E]/g, '?');
         };
         
-        const cleanPatientData = {
-            patientId: cleanData(patientData.patientId),
-            cccd: cleanData(patientData.cccd),
-            bhyt: cleanData(patientData.bhyt),
-            fullName: cleanData(patientData.fullName),
-            dob: cleanData(patientData.dob),
-            gender: cleanData(patientData.gender),
-            hometown: cleanData(patientData.hometown),
-            phone: cleanData(patientData.phone),
-            relative: cleanData(patientData.relative),
-            weight: cleanData(patientData.weight),
-            height: cleanData(patientData.height),
-            room: cleanData(patientData.room),
-            bed: cleanData(patientData.bed),
-            admissionDate: cleanData(patientData.admissionDate),
-            dischargeDate: cleanData(patientData.dischargeDate),
-            bloodType: cleanData(patientData.bloodType),
-            allergies: cleanData(patientData.allergies),
-            medicalHistory: cleanData(patientData.medicalHistory),
-            generalCheckup: cleanData(patientData.generalCheckup),
-            doctor: cleanData(patientData.doctor),
-            nurses: cleanData(patientData.nurses)
-        };
+        // Clean all patient data
+        const cleanPatientData = {};
+        Object.keys(patientData).forEach(key => {
+            cleanPatientData[key] = removeAccents(patientData[key]);
+        });
         
         console.log('Cleaned patient data:', cleanPatientData);
-        console.log('Patient data collected:', cleanPatientData);
         
-        // Use Vietnamese text with full accents if font is available
-        const useVietnameseText = vietnameseFontAvailable;
-        console.log('Using Vietnamese text:', useVietnameseText);
-        
-        const headerText = useVietnameseText ? 'HỒ SƠ Bệnh Nhân' : 'HO SO BENH NHAN';
-        const systemText = useVietnameseText ? 'Hệ Thống Giám Sát Sức Khỏe Thông Minh' : 'He thong Giam sat Suc khoe Thong minh';
-        const dateText = useVietnameseText ? `Ngày xuất: ${currentDate} lúc ${currentTime}` : `Ngay xuat: ${currentDate} luci ${currentTime}`;
-        const hospitalText = useVietnameseText ? 'Bệnh viện: Bệnh viện Đa Khoa' : 'Benh vien: Benh vien Da khoa';
+        // Use non-accented Vietnamese text for maximum compatibility
+        const headerText = 'HO SO BENH NHAN';
+        const systemText = 'He thong Giam sat Suc khoe Thong minh';
+        const dateText = `Ngay xuat: ${currentDate} luci ${currentTime}`;
+        const hospitalText = 'Benh vien: Benh vien Da khoa';
         
         // PDF Header
         doc.setFontSize(20);
@@ -2186,7 +2153,7 @@ function createFullPatientPDF() {
         doc.text(hospitalText, 140, 40);
         
         // Patient basic information
-        const section1Text = useVietnameseText ? 'I. Thông Tin Cơ Bản' : 'I. THONG TIN CO BAN';
+        const section1Text = 'I. THONG TIN CO BAN';
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
         doc.text(section1Text, 20, 55);
@@ -2195,15 +2162,15 @@ function createFullPatientPDF() {
         doc.setTextColor(0, 0, 0);
         
         const basicInfo = [
-            [useVietnameseText ? 'Mã số bệnh nhân:' : 'Ma so benh nhan:', cleanPatientData.patientId],
-            [useVietnameseText ? 'Mã CCCD:' : 'Ma CCCD:', cleanPatientData.cccd],
-            [useVietnameseText ? 'Mã BHYT:' : 'Ma BHYT:', cleanPatientData.bhyt],
-            [useVietnameseText ? 'Họ và tên:' : 'Ho va ten:', cleanPatientData.fullName],
-            [useVietnameseText ? 'Ngày sinh:' : 'Ngay sinh:', cleanPatientData.dob],
-            [useVietnameseText ? 'Giới tính:' : 'Gioi tinh:', cleanPatientData.gender],
-            [useVietnameseText ? 'Quê quán:' : 'Que quan:', cleanPatientData.hometown],
-            [useVietnameseText ? 'Số điện thoại:' : 'So dien thoai:', cleanPatientData.phone],
-            [useVietnameseText ? 'Người thân:' : 'Nguoi than:', cleanPatientData.relative]
+            ['Ma so benh nhan:', cleanPatientData.patientId],
+            ['Ma CCCD:', cleanPatientData.cccd],
+            ['Ma BHYT:', cleanPatientData.bhyt],
+            ['Ho va ten:', cleanPatientData.fullName],
+            ['Ngay sinh:', cleanPatientData.dob],
+            ['Gioi tinh:', cleanPatientData.gender],
+            ['Que quan:', cleanPatientData.hometown],
+            ['So dien thoai:', cleanPatientData.phone],
+            ['Nguoi than:', cleanPatientData.relative]
         ];
         
         let yPosition = 65;
@@ -2215,7 +2182,7 @@ function createFullPatientPDF() {
         
         // Physical information
         yPosition += 5;
-        const section2Text = useVietnameseText ? 'II. Thông Tin Thể Chất' : 'II. THONG TIN THE CHAT';
+        const section2Text = 'II. THONG TIN THE CHAT';
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
         doc.text(section2Text, 20, yPosition);
@@ -2225,9 +2192,9 @@ function createFullPatientPDF() {
         yPosition += 10;
         
         const physicalInfo = [
-            [useVietnameseText ? 'Cân nặng:' : 'Can nang:', cleanPatientData.weight + ' kg'],
-            [useVietnameseText ? 'Chiều cao:' : 'Chieu cao:', cleanPatientData.height + ' cm'],
-            [useVietnameseText ? 'Nhóm máu:' : 'Nhom mau:', cleanPatientData.bloodType]
+            ['Can nang:', cleanPatientData.weight + ' kg'],
+            ['Chieu cao:', cleanPatientData.height + ' cm'],
+            ['Nhom mau:', cleanPatientData.bloodType]
         ];
         
         physicalInfo.forEach(([label, value]) => {
@@ -2238,7 +2205,7 @@ function createFullPatientPDF() {
         
         // Treatment information
         yPosition += 5;
-        const section3Text = useVietnameseText ? 'III. Thông Tin Điều Trị' : 'III. THONG TIN DIEU TRI';
+        const section3Text = 'III. THONG TIN DIEU TRI';
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
         doc.text(section3Text, 20, yPosition);
@@ -2248,12 +2215,12 @@ function createFullPatientPDF() {
         yPosition += 10;
         
         const treatmentInfo = [
-            [useVietnameseText ? 'Phòng:' : 'Phong:', cleanPatientData.room],
-            [useVietnameseText ? 'Giường:' : 'Giuong:', cleanPatientData.bed],
-            [useVietnameseText ? 'Ngày vào viện:' : 'Ngay vao vien:', cleanPatientData.admissionDate],
-            [useVietnameseText ? 'Ngày ra viện:' : 'Ngay ra vien:', cleanPatientData.dischargeDate],
-            [useVietnameseText ? 'Bác sĩ điều trị:' : 'Bac si dieu tri:', cleanPatientData.doctor],
-            [useVietnameseText ? 'Điều dưỡng:' : 'Dieu duong:', cleanPatientData.nurses]
+            ['Phong:', cleanPatientData.room],
+            ['Giuong:', cleanPatientData.bed],
+            ['Ngay vao vien:', cleanPatientData.admissionDate],
+            ['Ngay ra vien:', cleanPatientData.dischargeDate],
+            ['Bac si dieu tri:', cleanPatientData.doctor],
+            ['Dieu duong:', cleanPatientData.nurses]
         ];
         
         treatmentInfo.forEach(([label, value]) => {
@@ -2264,7 +2231,7 @@ function createFullPatientPDF() {
         
         // Medical information
         yPosition += 5;
-        const section4Text = useVietnameseText ? 'IV. Thông Tin Y Tế' : 'IV. THONG TIN Y TE';
+        const section4Text = 'IV. THONG TIN Y TE';
         doc.setFontSize(14);
         doc.setTextColor(0, 102, 204);
         doc.text(section4Text, 20, yPosition);
@@ -2285,16 +2252,16 @@ function createFullPatientPDF() {
             return startY + 8;
         };
         
-        yPosition = addSimpleText(useVietnameseText ? 'Dị ứng:' : 'Di ung:', cleanPatientData.allergies, yPosition);
-        yPosition = addSimpleText(useVietnameseText ? 'Tiền sử bệnh:' : 'Tien su benh:', cleanPatientData.medicalHistory, yPosition);
-        yPosition = addSimpleText(useVietnameseText ? 'Tái khám định kỳ:' : 'Tai kham dinh ky:', cleanPatientData.generalCheckup, yPosition);
+        yPosition = addSimpleText('Di ung:', cleanPatientData.allergies, yPosition);
+        yPosition = addSimpleText('Tien su benh:', cleanPatientData.medicalHistory, yPosition);
+        yPosition = addSimpleText('Tai kham dinh ky:', cleanPatientData.generalCheckup, yPosition);
         
         // Footer
         const footerY = 280;
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
-        const footerText1 = useVietnameseText ? 'Đây là tài liệu y tế bảo mật. Vui lòng bảo mật thông tin bệnh nhân.' : 'Day la tai lieu yte bao mat. Vui long bao mat thong tin benh nhan.';
-        const footerText2 = useVietnameseText ? 'Hệ Thống Giám Sát Sức Khỏe Thông Minh - Phiên bản 1.0' : 'He thong Giam sat Suc khoe Thong minh - Phien ban 1.0';
+        const footerText1 = 'Day la tai lieu yte bao mat. Vui long bao mat thong tin benh nhan.';
+        const footerText2 = 'He thong Giam sat Suc khoe Thong minh - Phien ban 1.0';
         
         doc.text(footerText1, 105, footerY, { align: 'center' });
         doc.text(footerText2, 105, footerY + 5, { align: 'center' });
