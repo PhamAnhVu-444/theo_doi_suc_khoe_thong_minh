@@ -1975,14 +1975,27 @@ function exportPatientToPDF() {
     console.log('Export PDF function called');
     
     try {
-        // Check if pdfmake is loaded
-        if (typeof pdfMake === 'undefined') {
+        // Debug: Check what's available
+        console.log('Checking available libraries...');
+        console.log('window.pdfMake:', typeof window.pdfMake);
+        console.log('window.jspdf:', typeof window.jspdf);
+        console.log('pdfMake:', typeof pdfMake);
+        console.log('window object keys:', Object.keys(window).filter(key => key.includes('pdf')));
+        
+        // Check if pdfmake is loaded (multiple ways)
+        const pdfmakeLib = window.pdfMake || pdfMake;
+        if (typeof pdfmakeLib === 'undefined') {
             console.error('pdfmake library not loaded');
+            console.error('Available PDF libraries:', {
+                'window.pdfMake': typeof window.pdfMake,
+                'pdfMake': typeof pdfMake,
+                'window.jspdf': typeof window.jspdf
+            });
             showNotification('Thư viện PDF chưa tải. Vui lòng refresh trang.', 'error');
             return;
         }
         
-        console.log('pdfmake loaded:', typeof pdfMake);
+        console.log('pdfmake loaded:', typeof pdfmakeLib);
         
         // Test pdfmake with Vietnamese Unicode
         console.log('Testing pdfmake with Vietnamese Unicode...');
@@ -2005,7 +2018,9 @@ function exportPatientToPDF() {
             };
             
             console.log('Creating test PDF with Vietnamese accents...');
-            pdfMake.createPdf(docDefinition).download('test.pdf');
+            console.log('Document definition:', docDefinition);
+            
+            pdfmakeLib.createPdf(docDefinition).download('test.pdf');
             console.log('Test PDF saved successfully');
             
             // Show success notification
@@ -2018,11 +2033,13 @@ function exportPatientToPDF() {
             
         } catch (pdfError) {
             console.error('PDF creation error:', pdfError);
+            console.error('Error stack:', pdfError.stack);
             showNotification('Lỗi khi tạo PDF: ' + pdfError.message, 'error');
         }
         
     } catch (error) {
         console.error('Error exporting PDF:', error);
+        console.error('Error stack:', error.stack);
         showNotification('Lỗi khi xuất PDF: ' + error.message, 'error');
     }
 }
