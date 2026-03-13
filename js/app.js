@@ -2367,21 +2367,12 @@ function createFullPatientPDF() {
                         body: [
                             ['Cân nặng:', patientData.weight + ' kg'],
                             ['Chiều cao:', patientData.height + ' cm'],
-                            ['Nhóm máu:', patientData.bloodType],
-                            ['Thông tin nhóm máu:', 'Sự kết hợp giữa 4 nhóm máu chính và 2 loại yếu tố Rh tạo ra 8 loại nhóm máu phổ biến:']
+                            ['Nhóm máu:', patientData.bloodType]
                         ]
                     },
                     layout: 'noBorders',
                     fontSize: 11,
-                    margin: [0, 0, 0, 0]
-                },
-                
-                {
-                    text: 'Hệ ABO có 4 nhóm máu: A, B, AB và O\nHệ Rh có 2 nhóm máu thường gặp là Rh(D) dương và Rh(D) âm, hay còn gọi là Rh(D)+ và Rh(D)-',
-                    fontSize: 10,
-                    alignment: 'left',
-                    margin: [30, 0, 0, 10],
-                    color: '#666666'
+                    margin: [0, 0, 0, 10]
                 },
                 
                 // Section 3: Treatment Information
