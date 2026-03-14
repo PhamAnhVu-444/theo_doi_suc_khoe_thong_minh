@@ -198,6 +198,16 @@ document.addEventListener('DOMContentLoaded', initializeVoices);
 // Also initialize voices on window load (backup)
 window.addEventListener('load', initializeVoices);
 
+// Test function for Vietnamese TTS
+function testVietnameseTTS() {
+    console.log('Testing Vietnamese TTS...');
+    const testText = "Xin chào, đây là bài kiểm tra giọng đọc tiếng Việt. Chức năng text-to-speech đang hoạt động tốt.";
+    speakText(testText);
+}
+
+// Export test function
+window.testVietnameseTTS = testVietnameseTTS;
+
 // Hide typing indicator
 function hideTypingIndicator() {
     const typingIndicator = document.querySelector('.typing-indicator');
@@ -2101,8 +2111,9 @@ window.redrawAllCharts = redrawAllCharts;
 // Temperature settings functions
 window.showTemperatureSettings = showTemperatureSettings;
 window.closeTemperatureSettings = closeTemperatureSettings;
-window.setTemperatureUnit = setTemperatureUnit;
-window.toggleTemperatureUnit = toggleTemperatureUnit;
+window.updateTemperatureThresholds = updateTemperatureThresholds;
+window.saveTemperatureSettings = saveTemperatureSettings;
+window.loadTemperatureSettings = loadTemperatureSettings;
 
 // Patient info functions
 window.updateMonitorPatientInfo = updateMonitorPatientInfo;
