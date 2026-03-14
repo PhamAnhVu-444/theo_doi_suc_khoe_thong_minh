@@ -61,6 +61,15 @@ function escapeHtml(text) {
 
 // Text-to-Speech function for Vietnamese
 function speakText(text) {
+    console.log('Starting text-to-speech for:', text);
+    
+    // Check if speech synthesis is supported
+    if (!window.speechSynthesis) {
+        console.error('Speech synthesis not supported in this browser');
+        alert('Trình duyệt của bạn không hỗ trợ chức năng đọc văn bản. Vui lòng sử dụng Chrome, Edge, hoặc Safari.');
+        return;
+    }
+    
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
@@ -71,56 +80,123 @@ function speakText(text) {
     utterance.lang = 'vi-VN';
     
     // Set voice parameters for better Vietnamese pronunciation
-    utterance.rate = 0.9;  // Slightly slower for clarity
+    utterance.rate = 0.8;  // Even slower for clarity
     utterance.pitch = 1.0; // Normal pitch
     utterance.volume = 1.0; // Full volume
     
+    // Get all available voices
+    let voices = window.speechSynthesis.getVoices();
+    console.log('Available voices:', voices.length);
+    console.log('Voice list:', voices.map(v => `${v.name} (${v.lang})`));
+    
     // Try to find Vietnamese voice
-    const voices = window.speechSynthesis.getVoices();
-    const vietnameseVoice = voices.find(voice => 
-        voice.lang.includes('vi') || voice.lang.includes('VN')
+    let vietnameseVoice = voices.find(voice => 
+        voice.lang.includes('vi') || 
+        voice.lang.includes('VN') ||
+        voice.name.toLowerCase().includes('vietnamese')
     );
+    
+    // If no Vietnamese voice found, try to force load voices
+    if (!vietnameseVoice && voices.length === 0) {
+        console.log('No voices loaded, trying to force load...');
+        window.speechSynthesis.getVoices();
+        voices = window.speechSynthesis.getVoices();
+        
+        // Try again after loading
+        vietnameseVoice = voices.find(voice => 
+            voice.lang.includes('vi') || 
+            voice.lang.includes('VN') ||
+            voice.name.toLowerCase().includes('vietnamese')
+        );
+    }
     
     if (vietnameseVoice) {
         utterance.voice = vietnameseVoice;
-        console.log('Using Vietnamese voice:', vietnameseVoice.name);
+        console.log('Using Vietnamese voice:', vietnameseVoice.name, vietnameseVoice.lang);
     } else {
         console.log('Vietnamese voice not found, using default voice');
-        // Try to use any voice that might support Vietnamese
+        // Try to use any voice that might work
         const fallbackVoice = voices.find(voice => 
-            voice.lang.includes('en') || voice.lang.includes('es') || voice.lang.includes('fr')
+            voice.lang.includes('en') || 
+            voice.lang.includes('es') || 
+            voice.lang.includes('fr') ||
+            voice.lang.includes('de')
         );
         if (fallbackVoice) {
             utterance.voice = fallbackVoice;
+            console.log('Using fallback voice:', fallbackVoice.name, fallbackVoice.lang);
         }
+        
+        // Show notification to user
+        showNotification('Không tìm thấy giọng đọc tiếng Việt. Sử dụng giọng mặc định.', 'warning');
     }
     
     // Add event listeners
     utterance.onstart = () => {
-        console.log('Started speaking Vietnamese text');
+        console.log('Started speaking text');
+        showNotification('Đang đọc văn bản...', 'info');
     };
     
     utterance.onend = () => {
-        console.log('Finished speaking Vietnamese text');
+        console.log('Finished speaking text');
+        showNotification('Đã đọc xong', 'success');
     };
     
     utterance.onerror = (event) => {
         console.error('Speech synthesis error:', event.error);
+        showNotification(`Lỗi đọc văn bản: ${event.error}`, 'error');
     };
     
     // Speak the text
-    window.speechSynthesis.speak(utterance);
+    try {
+        window.speechSynthesis.speak(utterance);
+        console.log('Speech synthesis started successfully');
+    } catch (error) {
+        console.error('Error starting speech synthesis:', error);
+        showNotification('Không thể bắt đầu đọc văn bản', 'error');
+    }
 }
 
-// Load voices when available
-window.speechSynthesis.onvoiceschanged = () => {
-    console.log('Available voices:', window.speechSynthesis.getVoices().map(v => `${v.name} (${v.lang})`));
-};
-
-// Ensure voices are loaded
-if (window.speechSynthesis.getVoices().length === 0) {
+// Initialize voices on page load
+function initializeVoices() {
+    console.log('Initializing speech synthesis voices...');
+    
+    // Force load voices
     window.speechSynthesis.getVoices();
+    
+    // Set up voice change listener
+    window.speechSynthesis.onvoiceschanged = () => {
+        const voices = window.speechSynthesis.getVoices();
+        console.log('Voices changed, total voices:', voices.length);
+        console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+        
+        // Check for Vietnamese voices
+        const vietnameseVoices = voices.filter(voice => 
+            voice.lang.includes('vi') || 
+            voice.lang.includes('VN') ||
+            voice.name.toLowerCase().includes('vietnamese')
+        );
+        
+        if (vietnameseVoices.length > 0) {
+            console.log('Found Vietnamese voices:', vietnameseVoices.map(v => v.name));
+        } else {
+            console.log('No Vietnamese voices found');
+            showNotification('Trình duyệt không có giọng đọc tiếng Việt. Sẽ sử dụng giọng mặc định.', 'warning');
+        }
+    };
+    
+    // Try to trigger voices loaded
+    setTimeout(() => {
+        const voices = window.speechSynthesis.getVoices();
+        console.log('Delayed voice check, voices:', voices.length);
+    }, 1000);
 }
+
+// Initialize voices when page loads
+document.addEventListener('DOMContentLoaded', initializeVoices);
+
+// Also initialize voices on window load (backup)
+window.addEventListener('load', initializeVoices);
 
 // Hide typing indicator
 function hideTypingIndicator() {
