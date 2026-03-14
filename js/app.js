@@ -28,9 +28,27 @@ function addMessage(message, type) {
     // Add speaker icon for AI messages
     let speakerIcon = '';
     if (type === 'ai') {
-        speakerIcon = `<button class="speaker-btn" onclick="speakText('${escapeHtml(message)}')" title="Đọc to">
+        const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        speakerIcon = `<button class="speaker-btn" id="${messageId}" title="Đọc to">
                         <span class="material-icons">volume_up</span>
                     </button>`;
+        
+        // Add click listener after element is added to DOM
+        setTimeout(() => {
+            const speakerBtn = document.getElementById(messageId);
+            if (speakerBtn) {
+                console.log('Speaker button found:', messageId);
+                speakerBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Speaker button clicked for:', message);
+                    speakText(message);
+                });
+                console.log('Click listener added to:', messageId);
+            } else {
+                console.error('Speaker button not found:', messageId);
+            }
+        }, 100);
     }
     
     messageDiv.innerHTML = `
