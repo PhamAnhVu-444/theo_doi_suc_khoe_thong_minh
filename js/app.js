@@ -2100,7 +2100,7 @@ window.redrawAllCharts = redrawAllCharts;
 
 // Temperature settings functions
 window.showTemperatureSettings = showTemperatureSettings;
-window.hideTemperatureSettings = hideTemperatureSettings;
+window.closeTemperatureSettings = closeTemperatureSettings;
 window.setTemperatureUnit = setTemperatureUnit;
 window.toggleTemperatureUnit = toggleTemperatureUnit;
 
