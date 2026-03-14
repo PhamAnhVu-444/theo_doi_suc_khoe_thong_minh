@@ -25,15 +25,101 @@ function addMessage(message, type) {
         icon = '<span class="material-icons">person</span>';
     }
     
+    // Add speaker icon for AI messages
+    let speakerIcon = '';
+    if (type === 'ai') {
+        speakerIcon = `<button class="speaker-btn" onclick="speakText('${escapeHtml(message)}')" title="Đọc to">
+                        <span class="material-icons">volume_up</span>
+                    </button>`;
+    }
+    
     messageDiv.innerHTML = `
         <div class="message-content">
             ${icon}
-            <p>${message}</p>
+            <div class="message-text-container">
+                <p>${message}</p>
+                ${speakerIcon}
+            </div>
         </div>
     `;
     
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Text-to-Speech function for Vietnamese
+function speakText(text) {
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    // Create new speech synthesis utterance
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Set language to Vietnamese
+    utterance.lang = 'vi-VN';
+    
+    // Set voice parameters for better Vietnamese pronunciation
+    utterance.rate = 0.9;  // Slightly slower for clarity
+    utterance.pitch = 1.0; // Normal pitch
+    utterance.volume = 1.0; // Full volume
+    
+    // Try to find Vietnamese voice
+    const voices = window.speechSynthesis.getVoices();
+    const vietnameseVoice = voices.find(voice => 
+        voice.lang.includes('vi') || voice.lang.includes('VN')
+    );
+    
+    if (vietnameseVoice) {
+        utterance.voice = vietnameseVoice;
+        console.log('Using Vietnamese voice:', vietnameseVoice.name);
+    } else {
+        console.log('Vietnamese voice not found, using default voice');
+        // Try to use any voice that might support Vietnamese
+        const fallbackVoice = voices.find(voice => 
+            voice.lang.includes('en') || voice.lang.includes('es') || voice.lang.includes('fr')
+        );
+        if (fallbackVoice) {
+            utterance.voice = fallbackVoice;
+        }
+    }
+    
+    // Add event listeners
+    utterance.onstart = () => {
+        console.log('Started speaking Vietnamese text');
+    };
+    
+    utterance.onend = () => {
+        console.log('Finished speaking Vietnamese text');
+    };
+    
+    utterance.onerror = (event) => {
+        console.error('Speech synthesis error:', event.error);
+    };
+    
+    // Speak the text
+    window.speechSynthesis.speak(utterance);
+}
+
+// Load voices when available
+window.speechSynthesis.onvoiceschanged = () => {
+    console.log('Available voices:', window.speechSynthesis.getVoices().map(v => `${v.name} (${v.lang})`));
+};
+
+// Ensure voices are loaded
+if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.getVoices();
 }
 
 // Hide typing indicator
