@@ -2191,13 +2191,6 @@ loadTheme();
 // Load patient information on load
 loadPatientInfo();
 
-// Export functions for global access
-window.saveChatHistory = saveChatHistory;
-window.loadChatHistory = loadChatHistory;
-window.clearChatHistory = clearChatHistory;
-window.exportChatHistory = exportChatHistory;
-window.displayChatHistory = displayChatHistory;
-
 // Initialize chat history when page loads
 document.addEventListener('DOMContentLoaded', function() {
     // Load chat history on startup
@@ -2802,3 +2795,18 @@ function createFullPatientPDF() {
         showNotification('Lỗi khi xuất PDF. Vui lòng thử lại.', 'error');
     }
 }
+
+// Export functions for global access (moved to end to avoid conflicts)
+window.saveChatHistory = saveChatHistory;
+window.loadChatHistory = loadChatHistory;
+window.clearChatHistory = clearChatHistory;
+window.exportChatHistory = exportChatHistory;
+window.displayChatHistory = displayChatHistory;
+
+console.log('Chat history functions exported:', {
+    saveChatHistory: typeof window.saveChatHistory,
+    loadChatHistory: typeof window.loadChatHistory,
+    clearChatHistory: typeof window.clearChatHistory,
+    exportChatHistory: typeof window.exportChatHistory,
+    displayChatHistory: typeof window.displayChatHistory
+});
