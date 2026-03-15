@@ -78,6 +78,35 @@ function exportChatHistory() {
     }
 }
 
+// Display chat history in UI
+function displayChatHistory() {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+    
+    chatMessages.innerHTML = '';
+    
+    aiChatHistory.forEach(msg => {
+        addMessage(msg.message, msg.type);
+    });
+    
+    console.log('Chat history displayed:', aiChatHistory.length, 'messages');
+}
+
+// Export functions immediately after definition
+window.saveChatHistory = saveChatHistory;
+window.loadChatHistory = loadChatHistory;
+window.clearChatHistory = clearChatHistory;
+window.exportChatHistory = exportChatHistory;
+window.displayChatHistory = displayChatHistory;
+
+console.log('Chat history functions exported immediately:', {
+    saveChatHistory: typeof window.saveChatHistory,
+    loadChatHistory: typeof window.loadChatHistory,
+    clearChatHistory: typeof window.clearChatHistory,
+    exportChatHistory: typeof window.exportChatHistory,
+    displayChatHistory: typeof window.displayChatHistory
+});
+
 // Add message to chat with history tracking
 function addMessage(message, type) {
     const chatMessages = document.getElementById('chat-messages');
@@ -2795,18 +2824,3 @@ function createFullPatientPDF() {
         showNotification('Lỗi khi xuất PDF. Vui lòng thử lại.', 'error');
     }
 }
-
-// Export functions for global access (moved to end to avoid conflicts)
-window.saveChatHistory = saveChatHistory;
-window.loadChatHistory = loadChatHistory;
-window.clearChatHistory = clearChatHistory;
-window.exportChatHistory = exportChatHistory;
-window.displayChatHistory = displayChatHistory;
-
-console.log('Chat history functions exported:', {
-    saveChatHistory: typeof window.saveChatHistory,
-    loadChatHistory: typeof window.loadChatHistory,
-    clearChatHistory: typeof window.clearChatHistory,
-    exportChatHistory: typeof window.exportChatHistory,
-    displayChatHistory: typeof window.displayChatHistory
-});
