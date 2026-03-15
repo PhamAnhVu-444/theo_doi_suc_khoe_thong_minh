@@ -8,7 +8,77 @@ let healthDataListener = null;
 let isAIChatEnabled = false;
 let aiChatHistory = [];
 
-// Add message to chat
+// Save chat history to localStorage
+function saveChatHistory() {
+    try {
+        localStorage.setItem('aiChatHistory', JSON.stringify(aiChatHistory));
+        console.log('Chat history saved to localStorage');
+    } catch (error) {
+        console.error('Error saving chat history:', error);
+        showNotification('Không thể lưu cuộc trò chuyện', 'error');
+    }
+}
+
+// Load chat history from localStorage
+function loadChatHistory() {
+    try {
+        const saved = localStorage.getItem('aiChatHistory');
+        if (saved) {
+            aiChatHistory = JSON.parse(saved);
+            console.log('Chat history loaded from localStorage:', aiChatHistory.length, 'messages');
+            return true;
+        }
+    } catch (error) {
+        console.error('Error loading chat history:', error);
+    }
+    return false;
+}
+
+// Clear chat history
+function clearChatHistory() {
+    if (confirm('Bạn có chắc muốn xóa toàn bộ lịch sử trò chuyện?')) {
+        aiChatHistory = [];
+        localStorage.removeItem('aiChatHistory');
+        
+        // Clear chat messages from UI
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            chatMessages.innerHTML = '';
+        }
+        
+        showNotification('Đã xóa lịch sử trò chuyện', 'success');
+        console.log('Chat history cleared');
+    }
+}
+
+// Export chat history to file
+function exportChatHistory() {
+    try {
+        const historyText = aiChatHistory.map(msg => {
+            const timestamp = new Date(msg.timestamp).toLocaleString('vi-VN');
+            const sender = msg.type === 'user' ? 'Bạn' : 'AI';
+            return `[${timestamp}] ${sender}: ${msg.message}`;
+        }).join('\n\n');
+        
+        const blob = new Blob([historyText], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ai-chat-history-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        showNotification('Đã xuất lịch sử trò chuyện', 'success');
+        console.log('Chat history exported to file');
+    } catch (error) {
+        console.error('Error exporting chat history:', error);
+        showNotification('Không thể xuất lịch sử trò chuyện', 'error');
+    }
+}
+
+// Add message to chat with history tracking
 function addMessage(message, type) {
     const chatMessages = document.getElementById('chat-messages');
     if (!chatMessages) return;
@@ -63,6 +133,32 @@ function addMessage(message, type) {
     
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Add to history (but not system messages)
+    if (type !== 'system') {
+        aiChatHistory.push({
+            message: message,
+            type: type,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Auto-save after each message
+        saveChatHistory();
+    }
+}
+
+// Display chat history in UI
+function displayChatHistory() {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+    
+    chatMessages.innerHTML = '';
+    
+    aiChatHistory.forEach(msg => {
+        addMessage(msg.message, msg.type);
+    });
+    
+    console.log('Chat history displayed:', aiChatHistory.length, 'messages');
 }
 
 // Escape HTML to prevent XSS
@@ -2096,6 +2192,23 @@ loadTheme();
 loadPatientInfo();
 
 // Export functions for global access
+window.saveChatHistory = saveChatHistory;
+window.loadChatHistory = loadChatHistory;
+window.clearChatHistory = clearChatHistory;
+window.exportChatHistory = exportChatHistory;
+window.displayChatHistory = displayChatHistory;
+
+// Initialize chat history when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Load chat history on startup
+    if (loadChatHistory()) {
+        console.log('Previous chat history found');
+        // Optionally display previous messages
+        // displayChatHistory();
+    } else {
+        console.log('No previous chat history found');
+    }
+});
 window.showScreen = showScreen;
 window.toggleTechnique = toggleTechnique;
 window.sendMessage = sendMessage;
